@@ -1,0 +1,166 @@
+#!/usr/bin/env ruby
+
+# compilation rules
+require 'httparty'
+
+@@config = YAML.load_file("./config.yaml")
+
+
+compile '/mailing-list-posts/' do
+  filter :erb
+  ## no layout as this gets included in homepage '/'
+end
+
+compile '/style/*/' do
+  filter :sass
+end
+
+compile '/sitemap/' do
+  # nothing
+end
+
+
+compile '/help/newsletters/*' do
+    filter :erb
+    filter :kramdown, :auto_id_stripping => true
+    layout 'default'
+end
+
+compile '/help/publications/papers/pubmed/' do
+  filter :erb
+end
+
+compile '*' do
+  case item[:extension]
+  when /md$/, /markdown$/
+    filter :erb
+    filter :kramdown, :auto_id_stripping => true, :input => 'GFM',
+        :hard_wrap => false
+  when /haml$/
+    filter :haml
+  when /html$/
+    filter :erb
+  when /sass$/
+    filter :sass
+  end
+  if item[:layout]
+    layout item[:layout]
+  elsif !item.binary?
+    layout 'default'
+  end
+  filter :google_analytics unless item.binary?
+end
+
+
+# routing rules
+
+route '/mailing-list-posts/' do
+  nil
+end
+
+route '/mailing-list-posts/[0-9]+/' do
+  nil
+end
+
+route '/help/publications/papers/pubmed/*' do
+  nil
+end
+
+route '/sitemap/' do
+  item.identifier.chop + '.xml'
+end
+
+route '/style/*/' do
+  item.identifier.chop + '.css'
+end
+
+# biocViews hierarchy
+route /BiocViews/ do
+  segs = item.identifier.split "/"
+  segs.pop
+  version = segs.pop
+  # note that we rely on the rake :pre_compile task to create duplicate versions of this file
+  # for each bioC version for which the "new" style BiocViews tree is created.
+  #"/help/bioc-views/#{config[:release_version]}/BiocViews.html"
+  item[:rebase] = true
+  "/packages/#{version}/BiocViews.html"
+end
+
+# index pages (package lists)
+route /^\/help\/bioc-views\/package-pages\/all-/ do
+  segs = item.identifier.split("-")
+  version = segs.pop.gsub("/", "")
+  long_repo_name = segs.pop
+  repo_map = {"Software" => "bioc", "AnnotationData" => "data/annotation", "ExperimentData" => "data/experiment"}
+  version = item[:bioc_version_num]
+  #"/help/bioc-views/#{version}/#{repo_map[long_repo_name]}/index.html"
+  "/packages/#{version}/#{repo_map[long_repo_name]}/index.html"
+end
+
+# package detail pages
+route /^\/help\/bioc-views\/package-pages\// do
+  pkg_name = item.identifier.split("/").last
+  version = item[:bioc_version_num]
+  #"/help/bioc-views/#{version}/#{item[:repo]}html/#{pkg_name}.html"
+  "/packages/#{version}/#{item[:repo]}html/#{pkg_name}.html"
+end
+
+
+route '*' do
+  if item.binary?
+    item.identifier.chop + "." + item[:extension]
+  else
+    item.identifier + 'index.html'
+  end
+end
+
+# layouting rules
+
+layout '*', :erb
+
+
+preprocess do 
+  unless(ENV.has_key?("QUICK_NANOC_COMPILE") && ENV["QUICK_NANOC_COMPILE"] == "true")
+    #todo - skip this gracefully if no internet connection
+    puts "Getting manifest information..."
+    url = "https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/"
+    branch_url = "https://hedgehog.fhcrc.org/bioconductor/branches/RELEASE_"
+    auth = {:username => "readonly", :password => "readonly"}
+    page = HTTParty.get("https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/",
+      :basic_auth => auth, :verify => false).body
+    manifests = {}
+    for line in page.split("\n")
+      if line =~ /bioc_([0123456789.]+)\.manifest/
+        ver = $1
+        manifests[ver] = []
+        if ver == config[:devel_version]
+          manifest_url = "#{url}bioc_#{ver}.manifest"
+        else
+          manifest_url = "#{branch_url}#{ver.gsub(".", "_")}/madman/Rpacks/bioc_#{ver}.manifest"
+        end
+        manifest = HTTParty.get(manifest_url, :basic_auth => auth, :verify=>false).body
+        for l in manifest.split("\n")
+          next unless l =~ /^Package: /
+          manifests[ver].push l.chomp.sub(/^Package: /, "").strip
+        end
+      end
+    end
+    config[:manifests] = manifests
+    
+    config[:manifest_keys] = manifests.keys.sort do |a,b|
+      amaj, amin = a.split(".")
+      bmaj, bmin = b.split(".")
+      amaj = Integer(amaj)
+      amin = Integer(amin)
+      bmaj = Integer(bmaj)
+      bmin = Integer(bmin)
+      if amaj == bmaj
+        amin <=> bmin
+      else
+        amaj <=> bmaj
+      end
+    end
+    
+    puts "Processing site pages..."
+  end
+end

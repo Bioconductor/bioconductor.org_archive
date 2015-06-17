@@ -1,0 +1,145 @@
+* Migrating Content From Plone
+
+** Plone migration: use wget
+- Tried Enfold Systems desktop tool, it produces same raw HTML as
+  wget.
+- wget script:
+#+BEGIN_SRC sh
+#!/bin/bash
+
+wget --limit-rate=500k \
+     --mirror \
+     --convert-links \
+     --ignore-case \
+     --exclude-directories=packages,data,repository,checkResults \
+     --output-file=mirror.log \
+     http://bioconductor.org
+#+END_SRC
+- Result is 1533596 bytes  breakdown is:
+| Size | Path                            |
+| 32K  | bioconductor.org/GettingStarted |
+| 1.9M | bioconductor.org/overview       |
+| 1.1M | bioconductor.org/download       |
+| 44M  | bioconductor.org/docs           |
+| 61M  | bioconductor.org/pub            |
+| 1.4G | bioconductor.org/workshops      |
+| 2.4M | bioconductor.org/News           |
+| 32K  | bioconductor.org/developers     |
+| 104K | bioconductor.org/services       |
+| 44K  | bioconductor.org/mogr           |
+| 1.5G | bioconductor.org/               |
+
+There are some large .gz and .zip files mixed in there that I believe
+take up the bulk of the space under /workshops.
+
+** Plone html cleanup using tidy
+#+begin_src sh
+tidy -utf8 -asxhtml -bare -clean -indent
+#+end_src
+
+#+begin_src ruby
+  require 'find'
+  
+  Find.find('.') do |f|
+    if !f.match(/\.git/)
+      if !File.basename(f).match(/\./)
+        puts f
+      end
+    end
+  end
+#+end_src
+** Converting the Workshop content
+Use the =workshops.rb= file.  Path that is processed is hard-coded at
+the bottom in the call:
+
+#+begin_src ruby
+  import_workshop_index_files("../_MIRROR/bioconductor.org/workshops",
+                              "content/help")
+
+#+end_src
+
+This processes the workshops directory in the wget-based mirror,
+extracts and cleans content and writes html and yaml files under
+content.  These have since been checked into svn.  Running the script
+also produces a workshop_rewrites.txt file which contains Apache-style
+redirect directives that should be put in a =.htaccess= file to
+support 301 redirects of the old URLs for this content.
+** Syncing workshops non-html content
+Starting with a wget-produced mirror of the original bioconductor.org
+site, we synced non-html workshop files to the test site server using
+rsync.
+
+#+begin_example
+cd workshops
+rsync --dry-run -av --exclude "*html" \
+  --exclude "*tidy-error.txt" \
+  --exclude "*navBatchStart*" \
+  * biocadmin@merlot2:/loc/www/bioconductor-test.fhcrc.org/help/course-materials
+#+end_example
+*** 404 check after migration
+You can run wget as shown below to get a report on 404s for the site.
+#+begin_example
+wget -r --spider -U "404 check with wget" -o wwwbioc.log http://bioconductor-test.fhcrc.org
+#+end_example
+** Redirect existing URLs to new site: How?
+Using Apache and mod_rewrite, this is easy to accomplish using a
+.htaccess file with full paths and/or regex redirecting with desired
+moved permanently HTTP status code.  Advantage of a =.htaccess= file
+approach is that it will be easily managed in svn.
+
+Here's what the =.htaccess= file will look like:
+#+BEGIN_EXAMPLE
+<IfModule mod_rewrite.c>
+#RewriteEngine On
+#RewriteBase /
+Redirect 301 /fizzle /foozle
+</IfModule>
+#+END_EXAMPLE
+
+** Page Template Types
+*** Homepage
+*** Install
+*** Help
+*** course main index page
+*** course Year summary page
+*** About
+*** Content page
+- all sub-pages of /about
+- many pages under /help
+*** Events
+**** Event
+*** Package homepage
+*** List of packages page
+
+*** Blog archive
+Includes by tag and by date
+*** Blog post
+*** Blog tag
+
+** Browser stats from google analytics
+
+Overview of current bioconductor.org traffic
+
+| Browser | Visits | Percent |
+| Firefox | 9511   | 50.3    |
+| IE      | 4455   | 23.6    |
+| Safari  | 3227   | 17.1    |
+| Chrome  | 1087   | 5.75    |
+| Opera   | 279    | 1.5     | 
+
+Breakdown by version
+
+Firefox
+| Version | Visits | Percent |
+|   3.5.5 |   4119 |    43.3 |
+|   3.5.6 |   1786 |    18.8 |
+|  3.0.15 |   1331 |    14.0 |
+|  3.0.16 |    465 |     4.9 |
+|   3.5.3 |    176 |     1.9 |
+
+Internet Explorer
+| Version | Visits | Percent |
+|     8.0 |   1712 |    38.4 |
+|     7.0 |   1599 |    35.9 |
+|     6.0 |   1141 |    25.6 |
+|    5.01 |      1 |    0.02 |

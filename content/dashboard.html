@@ -1,0 +1,195 @@
+<h1>Dashboard</h1>
+
+
+<div class="hp_options_box">
+
+
+<div>
+<% page_build_time = get_current_time() %>
+<p>This page was built <abbr class="timeago" title="<%=page_build_time%>">
+        <%=page_build_time%></abbr>.</p>
+</div>
+
+
+<% if on_fhcrc_network? %>
+
+
+  <div>
+    <p>Last SVN commit to Rpacks devel was  <%= get_last_svn_commit_time() %>.</p>
+  </div>
+
+
+
+
+<div>
+      <div style="float:left;width:100%;">
+      <h2><img src="/images/icons/buildicon.gif" alt=""/><a href="/checkResults/">Build System Status</a></h2>
+
+    <style type="text/css">
+    SPAN.TIMEOUT {
+        background: #A08;
+        font-weight: bold;
+        color: white;
+    }
+    SPAN.ERROR {
+        background: #B33;
+        font-weight: bold;
+        color: white;
+    }
+    SPAN.WARNINGS {
+        background: #D82;
+        font-weight: bold;
+        color: white;
+    }
+    SPAN.OK {
+        background: #282;
+        font-weight: bold;
+        color: #DDD;
+    }
+    </style>
+    <p>Legend: 
+        <span class="TIMEOUT">&nbsp;TIMEOUT&nbsp;</span>
+        <span class="ERROR">&nbsp;ERROR&nbsp;</span>
+        <span class="WARNINGS">&nbsp;WARNINGS&nbsp;</span>
+        <span class="OK">&nbsp;OK&nbsp;</span>
+    </p>
+
+
+       <div>
+            <p><a href="/checkResults/release/bioc-LATEST/">Release, Software</a></p>
+            <%= get_build_summary("release", "bioc") %>
+            <p>&nbsp;</p>
+      </div>
+
+       <div>
+            <p><a href="/checkResults/release/data-experiment-LATEST/">Release, Experiment Data</a></p>
+            <%= get_build_summary("release", "data-experiment") %>
+            <p>&nbsp;</p>
+      </div>
+
+       <div>
+            <p><a href="/checkResults/devel/bioc-LATEST/">Devel, Software</a></p>
+            <%= get_build_summary("devel", "bioc") %>
+            <p>&nbsp;</p>
+      </div>
+
+       <div>
+            <p><a href="/checkResults/devel/data-experiment-LATEST/">Devel, Experiment Data</a></p>
+            <%= get_build_summary("devel", "data-experiment") %>
+      </div>
+
+
+    </div>
+
+</div>
+
+  <div style="float:left;width:100%;">
+      <h2 style="min-height:40px;"><img src="/images/icons/buildicon.gif" alt=""/><a href="https://tracker.bioconductor.org/">New Packages</a></h2>
+    <%=get_new_packages_in_tracker()%>
+  </div>
+
+
+  <div style="float:left;width:100%;">
+      <h2 style="min-height:40px;"><img src="/images/icons/buildicon.gif" alt=""/>
+        Single Package Builder</h2>
+    <%=recent_spb_builds()%>
+  </div>
+
+
+
+  <div style="float:left;width:50%;">
+    <%= render('/_mlwidget/', :ml_item => get_biostar_post_summaries(@items)) %>
+  </div>
+
+
+
+  <div style="float:right;width:50%;">
+    <div style="padding:0 0 0 12px">
+
+
+<a class="twitter-timeline" href="https://twitter.com/Bioconductor" data-widget-id="343120893754626048">Tweets by @Bioconductor</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+
+    </div>
+  </div>
+
+</div>
+
+
+  <div style="float:left;width:100%;">
+          <h2><img src="/images/icons/buildicon.gif" alt=""/>
+            Analytics</h2>
+    <p>Top search terms for past month:</p>
+    <%= get_search_terms()%>
+
+    <%= get_hits() %>
+
+  </div>
+
+
+
+
+
+<br clear="all"/>
+
+<div>
+    <h2>Support Site Usage Stats</h2>
+
+    <table id="support_site_usage">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Top-level posts</th>
+          <th>Answers</th>
+          <th>Comments</th>
+          <th>New Visitors</th>
+          <th>Returning Visitors</th>
+      </thead>
+      <tbody>
+        <% for row in get_stats %>
+          <tr>
+          <% #require 'pry';binding.pry %>
+          <% for key in [:label, :toplevel, :answers, :comments, :new_visitors, :returning_visitors] %>
+            <td><%= row[key] %></td>
+          <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+<p>&nbsp;</p>
+
+<p><i>Note</i>: Before mid-September, 2014, the support site was a mailing list, so the terms 'new visitors'
+and 'returning visitors' did not apply.</p>
+</div>
+
+
+<h2>Mirror Status</h2>
+
+<% status = mirror_status() %>
+
+<p>Last updated <abbr class="timeago" title="<%=status[:last_updated]%>">
+        <%=status[:last_updated]%></abbr>. (Will be updated every 24 hours).</p>
+
+
+<table>
+  <tr>
+    <th>URL</th>
+    <th>Release</th>
+    <th>Devel</th>
+  </tr>
+  <% for row in status[:status] %>
+    <tr>
+      <td><a href="<%= row[:url] %>"><%= row[:url] %></a></td>
+      <td><%= row[:release] %></td>
+      <td><%= row[:devel] %></td>
+    </tr>
+  <% end %>
+</table>
+
+<% else %>
+
+<p>Not on fhcrc network; not building dashboard.
+
+<% end %>

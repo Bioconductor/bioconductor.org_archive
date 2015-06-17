@@ -1,0 +1,124 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'hpricot'
+require 'yaml'
+require 'fileutils'
+
+class PloneConverter
+
+  def initialize(file_path, dest_id)
+    @doc = Hpricot(open(file_path))
+    @dest_id = dest_id
+  end
+
+  def parse_title
+    @doc.search("title").inner_html.gsub(/[\n ]+/, " ").strip
+  end
+
+  def parse_attributes
+    attrs = {}
+    @doc.search("meta").each do |meta_tag|
+      name = meta_tag["name"]
+      next unless name
+      case name
+      when /^DC\./
+        attrs[name] = meta_tag["content"]
+      end
+    end
+    attrs["title"] = parse_title()
+    tmp = @doc.search("base")
+    if tmp
+      attrs["plone_url"] = @doc.search("base")[0]["href"] rescue ""
+    end
+    attrs
+  end
+
+  def parse_content
+    c = @doc.search("div.plain")
+    if c.empty?
+      c = @doc.search("div.documentContent")
+    end
+    if c.empty?
+      c = @doc.search("body")
+    end
+    if !c.empty?
+      c.search("img[@src='']").remove
+      c.search("img").collect! do |node|
+        if /_icon\.gif/.match(node["src"])
+          node
+        else
+          nil
+        end
+      end.compact.remove
+      c.search("div").collect! {|n| n if n.empty? }.compact.remove
+      c.search("a.link-parent").remove
+      c.search("a").each do |a|
+        a.remove_attribute("target") if a["target"]
+      end
+      c.search("a#documentContent").remove
+      c.search("div.documentDescription").remove
+      c.search("div.discussion").remove
+      c[0].traverse_all_element do |e|
+        if e.elem?
+          e.remove_attribute("class") if e["class"]
+          e.remove_attribute("id") if e["id"]
+        end
+      end
+      c.inner_html
+    else
+      nil
+    end
+  end
+
+  def convert
+    unless (@dest_id =~ /^\/.*\/$/)
+      raise "dest_id must start/end with /"
+    end
+    dest_path = "content#{@dest_id}"
+    dest_html = dest_path.chop + ".html"
+    dest_yaml = dest_path.chop + ".yaml"
+    attrs = parse_attributes()
+    content = parse_content()
+    if content
+      FileUtils.mkdir_p(File.dirname(dest_html))
+      open(dest_html, "w") do |out|
+        out.write(content)
+      end
+      open(dest_yaml, "w") do |out|
+        out.write(attrs.to_yaml)
+      end
+      [dest_html, dest_yaml]
+    else
+      []
+    end
+  end
+end
+
+USAGE = <<EOF
+Usage: #{$0} infile nanoc_id
+
+infile - path to input HTML file that you want to convert
+
+nanoc_id - determines the output file according to nanoc_id syntax.
+           Basically this is the relative URL for the output.
+           E.g. /about/foo/.
+
+EOF
+
+if __FILE__ == $0
+  if ARGV.count != 2
+    puts USAGE
+    exit 1
+  end
+  plone_file, dest_id = ARGV
+  converter = PloneConverter.new(plone_file, dest_id)
+  output = converter.convert
+  if output.empty?
+    puts "No content: #{plone_file}"
+  else
+    output.each do |f|
+      puts "Wrote: #{f}"
+    end
+  end
+end

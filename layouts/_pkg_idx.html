@@ -1,0 +1,34 @@
+<h1>Bioconductor <%= @info[:repo]%> Packages</h1>
+
+<%# todo - show a splash of color here to indicate release or devel (or older version) %>
+
+
+<%
+#require 'pp'
+#pp @info
+#exit if true
+%>
+
+
+<p>
+	Bioconductor version: <%= verbose_bioc_version(@info) %>
+</p>
+
+<div class="do_not_rebase">
+    <table>
+        <tr> 
+            <th>Package</th> 
+            <th>Maintainer</th> 
+            <th>Title</th> 
+        </tr>        
+        <% @info[:info].each_with_index do |item, i|%>
+        <% style = (i % 2 == 1) ? "row_even" : "row_odd" %>
+
+        <tr class="<%=style%>">
+            <td><a href="html/<%=item[:name]%>.html"><%=item[:name]%></a></td>
+            <td><%=remove_emails(item[:Maintainer])%></td>
+            <td><%=item[:Title]%></td>
+        </tr>
+        <% end %>
+    </table>
+</div>

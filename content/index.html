@@ -1,0 +1,111 @@
+<div class="shaded_box">
+
+  <table cellspacing="0" cellpadding="0" summary=""><!-- table used for precise positioning -->
+    <tr valign="top">
+      <td style="border-right:1px silver solid;width:266px;">
+
+        <h1 style="border:0;margin:0;background-image:none">BioC2015</h1>
+
+        <p style="line-height:1.5em;padding-right:5em">Join us for
+          morning talks from distinguished speakers and community
+          members, afternoon workshops to hone your skills, and poster
+          sessions and social activities to get to know members of the
+          Bioconductor community at
+          our <a href="/help/course-materials/2015/BioC2015/">Annual
+          Conference</a>, July 20 (Developer Day), 21 and 22 in
+          Seattle, WA.</p>
+
+        <h1 style="border:0;margin:0;background-image:none">About<br/><em>Bioconductor</em></h1>
+
+        <p style="line-height:1.5em;padding-right:5em">
+		Bioconductor provides tools for the analysis and comprehension of
+		high-throughput genomic data. Bioconductor uses the R statistical
+		programming language, and is open source and open development. It
+		has two releases each year, 
+		<a href="/packages/release/BiocViews.html#___Software">1024 software packages</a>, 
+		and an active user community. Bioconductor is also 
+		available as an <a href="/help/bioconductor-cloud-ami/">
+		AMI</a> (Amazon Machine Image) and a series of
+		<a href="/help/docker/">Docker</a> images.</p>
+
+        <h1 style="border:0;margin:0;background-image:none">News</h1>
+
+        <p style="line-height:1.5em;padding-right:5em">
+          <ul>
+            <li>Bioconductor <a href="/news/bioc_3_1_release/">3.1</a> is available.</li>
+            <li>Orchestrating high-throughput
+            genomic analysis with <em>Bioconductor</em>
+            (<a href="http://www.nature.com/nmeth/journal/v12/n2/abs/nmeth.3252.html">abstract</a>) and other
+            <a href="/help/publications/">recent literature</a>.</li>
+
+            <li>Read our
+              latest <a href="/help/newsletters/2015_April/">newsletter</a>
+              and <a href="/help/course-materials/">course
+              material</a>.</li>
+
+            <li>Use
+                the <a href="https://support.bioconductor.org">support
+                site</a> to get help installing, learning and using
+                Bioconductor.</li>
+
+          </ul>
+        </p>
+
+      </td>
+      <td style="padding-left:35px">
+
+        <div style="width:50%;float:left;">
+          <%= render("/_install/") %>
+        </div>
+
+        <div style="width:50%;float:left;">
+          <%= render("/_learn/") %>
+        </div>
+
+        <br clear="all">
+
+        <div style="width:50%;float:left;">
+          <%= render("/_use/") %>
+        </div>
+
+        <div style="width:50%;float:left;">
+          <%= render("/_develop/") %>
+        </div>
+
+      </td>
+    </tr>
+  </table>
+
+</div>
+
+<div class="hp_options_box">
+
+  <div style="float:left;width:33%;">
+    <%= render('/_mlwidget/', :ml_item => get_biostar_post_summaries(@items)) %>
+  </div>
+
+  <div style="float:left;width:33%;">
+    <div style="padding:0 0 0 12px">
+      <h2><img src="/images/icons/calendar.gif" alt=""/><a href="/help/events/">Events</a></h2>
+      
+      
+      <%= render('/_upcoming_events/', :events => find_item(@items, '/help/events/')) %>
+      <p style="font-weight:bold"><a href="/help/events/">See all events</a>&nbsp;
+	  <span class="blue">&raquo;</span></p>
+    </div>
+  </div>
+
+  <div style="float:right;width:33%;">
+    <div style="padding:0 0 0 12px">
+
+      <!-- NEWS was here -->
+
+<a class="twitter-timeline" href="https://twitter.com/Bioconductor" data-widget-id="343120893754626048">Tweets by @Bioconductor</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+
+    </div>
+  </div>
+
+</div>
+<br clear="all"/>

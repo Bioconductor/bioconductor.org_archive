@@ -1,0 +1,59 @@
+<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
+ 
+<!-- DataTables -->
+<script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+
+<script language="javascript">
+    jQuery(document).ready( function () {
+        jQuery.fn.dataTableExt.oStdClasses.sStripeOdd = "row_odd";
+        jQuery.fn.dataTableExt.oStdClasses.sStripeEven = "row_even";
+
+        jQuery('#course_descriptions').DataTable({
+          //"order": [[ 4, "desc" ]],
+           "aaSorting": [],
+            "iDisplayLength": 25,
+            "aLengthMenu": [
+                 [25, 50, 100, -1],
+                 [25, 50, 100, "All"]
+            ]
+
+        });
+} );
+</script>
+
+
+<h1><img src="/images/icons/help.gif" alt="" />Courses &amp; Conferences</h1>
+
+<p>Bioconductor provides training in computational and statistical
+   methods for the analysis of genomic data. You are welcome to use
+   material from previous courses. However, you may not include these
+   in separately published works (articles, books, websites). When
+   using all or parts of the Bioconductor course materials (slides,
+   vignettes, scripts) please cite the authors and refer your audience
+   to the Bioconductor website.</p>
+
+
+<p><a href="/help/events/">Upcoming events</a> are advertised 6 to 8
+  weeks in advance.
+
+
+<%= render_courses %>
+
+<p>&nbsp;</p>
+
+<h2>Courses by year</h2>
+
+<ul class="inline_list">
+<% course_materials.each do |item| %>
+  <li><a href="<%= item.identifier %>"><%= item[:title] %></a></li>
+<% end %>
+</ul>
+
+
+<h2>Custom workshops</h2>
+
+<p>The Bioconductor project can provide customized workshops on
+  statistical methods and software for the analysis of genomic data
+  for different educational and industrial clients. Interested parties
+  should contact <a href="mailto:stvjc@channing.harvard.edu">Vincent
+  Carey</a>.</p>

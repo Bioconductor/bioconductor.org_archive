@@ -1,0 +1,179 @@
+## handle cache expiration times
+ExpiresActive On
+ExpiresByType text/html A600
+ExpiresByType text/javascript A600
+
+<ifModule mod_headers.c>
+<FilesMatch "PACKAGES$|PACKAGES\.gz$|VIEWS">
+Header set Cache-Control "max-age=3600"
+</FilesMatch>
+<FilesMatch "\.json$|\.js$">
+Header set Cache-Control "max-age=600"
+</FilesMatch>
+<FilesMatch "\.rss$">
+Header set Cache-Control "max-age=300"
+</FilesMatch>
+<FilesMatch "^biocLite\.R$">
+Header set Cache-Control "max-age=60"
+</FilesMatch>
+<FilesMatch "\.tar.gz$|\.tgz$|\.zip$">
+Header set Cache-Control "max-age=15552000"
+</FilesMatch>
+<FilesMatch "\.svg$">
+Header set Cache-Control "max-age=30"
+</FilesMatch>
+
+</ifModule>
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+DirectorySlash Off
+RewriteBase /
+
+# Redirect www. to non-www
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+
+RewriteRule ^(.*)/index_html$ $1/ [R=301]
+
+RewriteRule ^developers/how-to/git-mirror/$ /developers/how-to/git-mirrors/ [PT]
+
+
+
+# handle omitted trailing slash:
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_URI} !(.*)/$
+RewriteRule ^(.*)$ $1/ [PT]
+
+
+## packages urls
+##RewriteRule ^packages/release/BiocViews\.html$ /help/bioc-views/release/BiocViews.html [R=301]
+##RewriteRule ^packages/devel/BiocViews\.html$ /help/bioc-views/devel/BiocViews.html [R=301]
+
+RewriteRule ^Docs/Papers/2003/Chiaretti$ /help/publications/2003/Chiaretti/chiaretti2/ [R=301]
+
+RewriteRule ^help/bioc-views/(.*)$ /packages/$1 [R=301]
+
+RewriteRule ^mailList.html$ /help/mailing-list/ [R=301]
+
+
+## papers, slides, screen shots
+RewriteRule ^docs/papers.*$ /help/publications/ [R=301]
+RewriteRule ^docs/pslides.*$ /help/publications/ [R=301]
+RewriteRule ^PackageSlides.*$ /help/publications/ [R=301]
+RewriteRule ^overview/screenshots.*$ /help/publications/ [R=301]
+RewriteRule ^pub/workingpapers.*$ /help/publications/ [R=301]
+RewriteRule ^QA.*$ /help/publications/ [R=301]
+
+## workflows
+RewriteRule ^docs/workflows/oligoarrays(.*)$ /help/workflows/oligo-arrays$1 [R=301]
+RewriteRule ^docs/workflows/htmlpsequencing(.*)$ /help/workflows/high-throughput-sequencing$1 [R=301]
+RewriteRule ^docs/workflows/accessingAnnotData(.*)$ /help/workflows/annotation-data$1 [R=301]
+RewriteRule ^docs/workflows/flowcytometry(.*)$ /help/workflows/high-throughput-assays$1 [R=301]
+RewriteRule ^docs/workflows/flowoverview.*$ /help/workflows/high-throughput-assays/ [R=301]
+RewriteRule ^docs/workflows/index.html$ /help/workflows/ [R=301]
+RewriteRule ^docs/workflows/?$ /help/workflows/ [R=301]
+
+## general help
+RewriteRule ^docs/mailList.html$ /help/mailing-list/ [R=301]
+RewriteRule ^docs/vignettes.html$ /help/package-vignettes/ [R=301]
+RewriteRule ^docs/postingGuide.html$ /help/mailing-list/posting-guide/ [R=301]
+RewriteRule ^News.*$ /help/events/ [R=301]
+RewriteRule ^docs/gettingHelp.html$ /help/ [R=301]
+RewriteRule ^docs/index.html$ /help/ [R=301]
+RewriteRule ^docs/?$ /help/ [R=301]
+
+## book chapters
+RewriteRule ^pub/MiMB$ /help/publications/book-chapters/MiMB [R=301]
+
+## books
+RewriteRule ^pub/biocases/BioconductorCaseStudiesSmall$ /help/publications/books/bioconductor-case-studies/case-studies-small.jpg [R=301]
+RewriteRule ^pub/biocases/BiocCaseStudies$ /help/publications/books/bioconductor-case-studies/case-studies.jpg [R=301]
+RewriteRule ^pub/biocases/BiocCaseStudiesLarge$ /help/publications/books/bioconductor-case-studies/case-studies-large.jpg [R=301]
+RewriteRule ^pub/biocases/websupp(.*)$ /help/publications/books/bioconductor-case-studies/web-supplement$1 [R=301]
+RewriteRule ^pub/biocases(.*)$ /help/publications/books/bioconductor-case-studies$1 [R=301]
+RewriteRule ^pub/docs/BioconductorCaseStudies.*$ /help/publications/books/bioconductor-case-studies/ [R=301]
+
+RewriteRule ^pub/RBioinf/RProgrammingForBioinformatics$ /help/publications/books/r-programming-for-bioinformatics/rbioinf.jpg [R=301]
+RewriteRule ^pub/RBioinf/RProgrammingforBioinformaticsSmall$ /help/publications/books/r-programming-for-bioinformatics/rbioinf-small.jpg [R=301]
+RewriteRule ^pub/RBioinf/websupp(.*)$ /help/publications/books/r-programming-for-bioinformatics/web-supplement$1 [R=301]
+RewriteRule ^pub/RBioinf(.*)$ /help/publications/books/r-programming-for-bioinformatics$1 [R=301]
+
+RewriteRule ^bioconductor_book.jpg$ /help/publications/books/bioinformatics-and-computational-biology-solutions/bioconductor_book.jpg [R=301]
+RewriteRule ^docs/mogr/bc1view$ /help/publications/books/bioinformatics-and-computational-biology-solutions/bc1view.jpg [R=301]
+RewriteRule ^docs/mogr/bcbook$ /help/publications/books/bioinformatics-and-computational-biology-solutions/bcbook.jpg [R=301]
+RewriteRule ^docs/mogr/mogrtest.*$ /help/publications/books/bioinformatics-and-computational-biology-solutions/ [R=301]
+RewriteRule ^docs/mogr(.*)$ /help/publications/books/bioinformatics-and-computational-biology-solutions$1 [R=301]
+RewriteRule ^mogr(.*)$ /help/publications/books/bioinformatics-and-computational-biology-solutions$1 [R=301]
+
+RewriteRule ^pub(.*)$ /help/publications$1 [R=301]
+
+## technical reports
+RewriteRule ^docs/techreports/TR1/relProjTR.pdf$ /help/publications/tech-reports/relProjTR.pdf$1 [R=301]
+RewriteRule ^docs/techreports/TR2/currProgTR.pdf$ /help/publications/tech-reports/currProgTR.pdf$1 [R=301]
+RewriteRule ^docs/techreports(.*)$ /help/publications/tech-reports$1 [R=301]
+
+## faq
+RewriteRule ^docs/faq.*$ /about/ [R=301]
+
+## annual reports
+RewriteRule ^docs/annualreports(.*)$ /about/annual-reports$1 [R=301]
+
+## mirrors
+RewriteRule ^download/mirrors/mirror-howto.html$ /about/mirrors/mirror-how-to/ [R=301] 
+RewriteRule ^download/mirrors(.*)$ /about/mirrors$1 [R=301] 
+
+## overview
+RewriteRule ^overview/coredevs.*$ /about/core-team/ [R=301]
+RewriteRule ^overview/related.*$ /about/related-projects/ [R=301]
+RewriteRule ^overview/advisoryboard.*$ /about/advisory-board/ [R=301]
+RewriteRule ^overview/acks.html$ /about/ [R=301]
+RewriteRule ^overview(.*)$ /about$1 [R=301]
+
+## workshops
+RewriteRule ^workshops(.*)$ /help/course-materials$1 [R=301]
+RewriteRule ^docs/fairUse.html$ /help/course-materials/ [R=301]
+RewriteRule ^services.*$ /help/course-materials/ [R=301]
+RewriteRule ^talks.*$ /help/course-materials/ [R=301]
+
+RewriteCond %{REQUEST_FILENAME} (.*)\.html$
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %1 -d
+RewriteRule ^.*$ %1/ [R=301]
+
+## general catch-alls
+RewriteRule ^docs/install.*$ /install/ [R=301]
+RewriteRule ^download.*$ /install/ [R=301]
+
+## misc
+RewriteRule ^apptest.*$ / [R=301]
+RewriteRule ^bioc1.7release$ /help/ [R=301]
+RewriteRule ^bugs.*$ /help/mailing-list/posting-guide/ [R=301]
+RewriteRule ^copy_of_index_html$ / [R=301]
+RewriteRule ^docs/bioclogo.*$ /images/logo_bioconductor.gif [R=301]
+RewriteRule ^GettingStarted.*$ / [R=301]
+RewriteRule ^index_html$ / [R=301]
+RewriteRule ^index_html_old$ / [R=301]
+RewriteRule ^main.html$ / [R=301]
+RewriteRule ^slogan.*$ /about/ [R=301]
+RewriteRule ^developers/deprecatio.*$ /developers/how-to/deprecation
+RewriteRule ^developers/useDeve.*$ /developers/how-to/useDevel
+RewriteRule ^developers/source-contro.*$ /developers/how-to/source-control
+RewriteRule ^developers/unitTesting-guideline.*$ /developers/how-to/unitTesting-guidelines
+RewriteRule ^developers/coding-styl.*$ /developers/how-to/coding-style
+RewriteRule ^developers/c-debuggin.*$ /developers/how-to/c-debugging
+RewriteRule ^developers/version-numberin.*$ /developers/how-to/version-numbering
+
+RewriteRule ^developers/BiocCheck.htm.*$ /packages/devel/bioc/vignettes/BiocCheck/inst/doc/BiocCheck.html [R=301]
+RewriteRule ^help/mailing-lis.*$ /help/support [R=301]
+
+RewriteRule ^BioC2015/$ /help/course-materials/2015/BioC2015/ [R=301]
+
+</IfModule>
+
+
+Redirect /bioc2013 https://secure.bioconductor.org/BioC2013
+
+## mailing list -> support
+

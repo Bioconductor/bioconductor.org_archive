@@ -1,0 +1,42 @@
+<%= doctype %>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+  <%= render("/_sitehead/") %>
+  <body>
+    <%= render("/_nav/", :section_navigation => has_subnav?(@item) && subnav_items(@item).length > 0) %>
+
+    <div id="SiteContainer" class="SiteContainer">
+      <% if has_subnav?(@item) %>
+      <div id="PageContent" class="PageContent WithRightRail">
+      <% else %>
+      <div id="PageContent" class="PageContent">
+      <% end %>
+
+        
+        <% if (@item.identifier != '/')%>
+          <%= render("/_crumbs/") %>
+        <% end %>
+
+        <% if @item.attributes.has_key?(:package_index_page)%>
+            <%= render("/_pkg_idx/", :info => @item.attributes)%>
+        <% end %>
+        <% if @item.attributes.has_key?(:Package)%>
+            <%= render("/_bioc_views_package_detail/", :package => @item.attributes)%>
+        <% end %>
+        <%# end hack%>
+        
+        <% unless item[:package].nil? %>
+          <%= render("/_workflows2/") %>
+        <% end %>
+
+        <%= yield if block_given? %>
+        <% if has_subnav?(@item) %>
+          </div>
+          <div id="RightRail" class="RightRail">
+          <a name="section-navigation"></a> <!-- accessibility anchor -->
+          <%= render("/_subnav/", :pages => subnav_items(@item)) %>
+        <% end %>
+      </div>
+      <%= render("/_footer/") %>
+    </div>
+  </body>
+</html>

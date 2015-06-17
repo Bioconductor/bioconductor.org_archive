@@ -1,0 +1,481 @@
+#!/usr/bin/env ruby
+
+@usage = <<EOF
+
+ course_mgr: manages Bioconductor course information
+
+--create COURSENAME
+    Create course content template directory named COURSENAME in
+    the current working directory.
+
+--index COURSENAME
+    Add course to courses list and create a course index content
+    page.  This modifies and creates files within the site's content
+    directory.  Uses template file and file structure found in COURSENAME
+    to create the index.
+
+--sync COURSENAME
+    Performs the initial creation of the course
+
+--push YEAR/COURSENAME
+    Performs an rsync of COURSENAME to live bioconductor.org webserver, pushing
+    local content (from content/help/course-materials/YEAR/COURSENAME) to server.
+
+--list [YEAR]
+   Lists existing courses on live server. You may constrain the list
+   by year; otherwise all courses are shown. 
+
+--clean COURSENAME
+    Removes the top-level directory COURSENAME and all its contents.
+    This cannot be undone!
+
+--pull YEAR/COURSENAME
+    Retrieves all course files from the remote server and puts them in
+    COURSENAME in the current working directory.
+
+COURSENAME
+    Name of the course in a format suitable for use as directory
+    name and URL path element. COURSENAME should be an unadorned 
+    name like "seattle-intro".
+
+ EXAMPLES OF USAGE
+
+ Creating a new course:
+ 1) Create a new course:
+ ./scripts/course_mgr --create mycourse
+ 2) Edit ./mycourse/course_config.yaml (assume course takes place in 2011)
+ 3) Create index page for course:
+ ./scripts/course_mgr --index mycourse
+ 4) Edit content/help/course-materials/2011/mycourse.md to point to
+    course materials. Place course materials in or below that directory.
+ 5) preview site with 'rake devserver'
+    Use URL: http://localhost:3000/help/course-materials/2011/mycourse/
+ 6) Copy content to server:
+    Step 1 (push course materials):
+      ./scripts/course_mgr --push mycourse
+    Step 2: (push course metadata (.yaml) and template (.md) files):
+      svn add content/help/course-materials/2011/mycourse.*
+      svn commit -m "added mycourse" content/help/course-materials/2011/mycourse.*
+ You may remove the top-level "mycourse" directory at this point.
+
+
+ Working with an existing course:
+ 1) Pull the course materials to your local machine:
+ ./scripts/course_mgr --pull 2011/existing_course
+ (top-level directory "existing_course" is created)
+ 2) Modify/add course materials in top level "existing_course" directory.
+ 3) Push revised course materials to server:
+ ./scripts/course_mgr --push existing_course
+ 4) If you modified the .md or .yaml files, copy them to 
+    content/help/course-materials/2011/existing_course
+    and commit your changes to subversion:
+      cp existing_course/existing_course.* content/help/course-materials/2011/
+      svn commit -m "made changes" content/help/course/materials/2011/existing_course.*
+
+ You may remove the top-level "existing_course" directory at this point.
+
+EOF
+
+require 'rubygems'
+require 'yaml'
+#require 'builder'
+require 'fileutils'
+require 'getoptlong'
+require 'open3'
+include Open3
+
+class CourseMgr
+  # commands to support:
+  CMDS = ["create", "index", "sync", "test"]
+
+
+
+
+  def initialize
+    verify_nanoc_dir()
+    @config = YAML.load_file("config.yaml")
+    @course_dir = "help/course-materials"
+    @content_dir = "content"
+    process_options()
+  end
+  
+  def process_options()
+    @opts = GetoptLong.new(
+          [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
+          [ '--create', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--index', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--push', GetoptLong::OPTIONAL_ARGUMENT ],
+          [ '--list', GetoptLong::OPTIONAL_ARGUMENT ],
+          ['--pull', GetoptLong::REQUIRED_ARGUMENT],
+          [ '--list_content', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--add_content', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--remove_content', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--checkin', GetoptLong::REQUIRED_ARGUMENT ],
+          ['--get_content', GetoptLong::REQUIRED_ARGUMENT],
+          ['--clean', GetoptLong::REQUIRED_ARGUMENT]
+        )
+    
+    optcount = 0
+
+
+    method = nil
+    argument = nil
+
+
+    begin
+      @opts.each do |opt, arg|
+        optcount += 1
+        method = opt
+        argument = arg
+      end
+    rescue GetoptLong::MissingArgument => ex
+      exit 1
+    rescue GetoptLong::InvalidOption => ex
+      exit 1
+    end
+
+
+    if (optcount > 1)
+      begin
+        err = GetoptLong::Error.new("Only one option at a time may be used.")
+        raise err
+      rescue GetoptLong::Error => ex
+        puts ex.message
+        exit 1
+      end
+    end
+
+    if (argument.nil?)
+      self.send(as_symbol(method))
+    else
+      self.send(as_symbol(method), argument)
+    end
+    
+        
+    
+  end
+
+
+  def test(name)
+    #output = run_cmd_with_output("ls")
+    #puts output
+    #RDoc::usage
+  end
+  
+  def clean(name)
+    unless (Kernel.test(?d, name))
+      puts "Directory #{name} does not exist."
+      exit 1
+    end
+    FileUtils.rm_rf name
+    puts "removed directory #{name}"
+  end
+  
+  def as_symbol(name)
+    if name.nil?
+      puts "invalid option, did you put '--' in front of it?"
+      exit 1
+    end
+    name.gsub(/^--/,"").to_sym
+  end
+
+  def raw_list(arg=nil)
+    deploy_root = @config["staging_deploy_root"]
+    host, path = deploy_root.split(":")
+    command = %Q(ssh #{host} "cd #{path}/help/course-materials && find .")
+    stdin, stdout, stderr = Open3.popen3(command)
+    years = []
+    clean = []
+    for item in stdout.readlines
+      if item =~ /^\.\/([0-9]{4})/
+        years.push($1.to_i)
+        clean.push(item.gsub(/^\.\//,"").chomp())
+      else
+        next
+      end
+    end
+    good = []
+    for item in clean
+      segs = item.split("/")
+      if segs.size == 2
+        good.push item
+      else
+        next
+      end
+    end
+    good.sort.join("\n")
+  end
+  
+  def filter_by_year(year)
+    all = raw_list()
+    ret = []
+    for item in all.split("\n")
+      ret.push item.chomp if item =~ /^#{year}\//
+    end
+    ret.join("\n")
+  end
+
+  def list(year=nil)
+    if (year.nil? or year.empty?)
+      puts raw_list
+    else
+      puts filter_by_year(year)
+    end
+  end
+
+  def create(name)
+    year = Time.now.year
+    course_yaml = <<"EOF"
+layout: course
+title:
+  The title of the course goes here
+start_date: #{year}-01-27
+end_date: #{year}-01-29
+instructors: ["T. Cher", "Prof S. Or"]
+location: "Seattle, USA"
+url: COURSE_URL_HERE
+tags: ["intro", "seattle", "package"]
+description:
+  You can put some description text here.
+  Must be indented.
+EOF
+    
+    if File.exist?(name)
+      $stderr.puts "#{name} already exists, aborting"
+      exit 1
+    end
+    FileUtils.mkdir(name)
+    config = "#{name}/course_config.yaml"
+    open(config, "w") do |f|
+      f.write(course_yaml)
+    end
+    msg = <<EOF
+Course directory created at: #{name}
+NEXT STEPS:
+    - edit #{config}
+    - run #{$0} --index #{name}
+EOF
+    puts msg
+  end
+
+  def index(name)
+    # FIXME: test name for exist and yaml file too
+    # FIXME: useful output if no files created (empty course dir)
+    course = YAML.load_file("#{name}/course_config.yaml")
+    bname = File.basename(name)
+    year = course_year(course)
+    create_year_index_page(year)
+    course_path = year + "/" + bname
+    course_out_dir = @content_dir + "/" + @course_dir + "/" + course_path
+    material = make_material_list(name, [/course_config.yaml/])
+    attrs = { "title" => bname, "created_at" => Time.now.utc,
+      "autogenerated" => true }.merge(course)
+    write_content(course_out_dir, { :content => material, :attrs => attrs})
+    name = name.sub(/\/$/, "")
+    rsync_src = "#{name}/"
+    rsync_dst = @config["output_dir"] + "/" + @course_dir + "/" + course_path
+    rsync_cmd = "rsync -a --exclude='*.yaml' #{rsync_src} #{rsync_dst}"
+    course_name = "#{name}/#{year}"
+    msg = <<EOF
+COPYING for preview:
+    src: #{rsync_src}
+    dst: #{rsync_dst}
+    cmd: #{rsync_cmd}
+EOF
+    run_cmd("mkdir -p #{File.dirname(rsync_dst)}") 
+    run_cmd(rsync_cmd)
+    puts msg
+    msg = <<EOF
+NEXT STEPS:
+    - preview site with 'rake devserver'
+    - Use URL: http://localhost:3000/help/course-materials/#{year}/#{name}/
+    - edit CREATED files to add descriptions for links
+    - if happy, run #{$0} --push #{year}/#{name}
+EOF
+    puts msg
+  end
+  
+  
+
+  def sync(name)
+    name = name.sub(/\/$/, "")
+    course = YAML.load_file("#{name}/course_config.yaml")
+    src = "#{name}"
+    deploy_root = @config["staging_deploy_root"]
+    host, path = deploy_root.split(":")
+    yearpath = "/" + @course_dir + "/" + course_year(course)
+    dst = deploy_root + yearpath
+    dir_cmd = "ssh #{host} mkdir -p #{path}#{yearpath}"
+    cmd = "rsync -avR --exclude='*.yaml' --exclude='*.md' #{src} #{dst}"
+    msg = <<EOF
+SYNC:
+    src: #{src}
+    dst: #{dst}
+    cmd: #{dir_cmd}
+    cmd: #{cmd}
+EOF
+    puts msg
+    run_cmd(dir_cmd)
+    run_cmd(cmd)
+    msg = <<EOF
+NEXT STEPS:
+    - svn add/commit changes in contents/
+    - wait 10 minutes for changes to propagate
+    - verify content on live site
+EOF
+    puts msg
+  end
+  
+  def pull(arg)
+    year, name = arg.split("/")
+    current_year = Time.now.year
+    if (name.nil?)
+      puts "Please supply a year and course name, e.g. #{current_year}/seattle-intro."
+      exit 1
+    end
+    if (Kernel.test(?e, name))
+      puts "INFO: Directory ./#{name} already exists."
+    else
+      FileUtils.mkdir(name)
+    end
+    
+    dst = "./#{name}/"
+    content_dir = "content/help/course-materials/#{year}"
+    pwd = FileUtils.pwd()
+    FileUtils.cd(content_dir)
+    run_cmd("svn up")
+    FileUtils.cd(pwd)
+    run_cmd("cp #{content_dir}/#{name}* #{dst}")
+    deploy_root = "#{@config["staging_deploy_root"]}/help/course-materials/#{arg}"
+    host, path = deploy_root.split(":")
+    
+    cmd = "rsync -avz #{deploy_root}/ #{dst}"
+    #puts cmd
+    run_cmd(cmd)
+  end
+  
+  def push(arg)
+    # todo - explain/figure out how to delete course material
+    current_year = Time.now.year
+    year, name = arg.split("/")
+    if (name.nil?)
+      puts "Please supply a year and course name, e.g. #{current_year}/seattle-intro."
+      exit 1
+    end
+    unless (Kernel.test(?e, name))
+      puts "Directory ./#{name} does not exist."
+      exit 1
+    end
+    deploy_root = "#{@config["staging_deploy_root"]}/help/course-materials/#{arg}"
+    cmd = "rsync --exclude='*.yaml' --exclude='*.md' -avz ./#{name}/ #{deploy_root}"
+    #puts cmd
+    run_cmd(cmd)
+        msg = <<EOF
+NEXT STEPS:
+    - svn add/commit changes in contents/
+    - wait 10 minutes for changes to propagate
+    - verify content on live site
+EOF
+        puts msg
+    
+  end
+
+  def get_course_dir(name)
+    "#{@content_dir}/#{@course_dir}/#{name}"
+  end
+
+  def course_year(course)
+    course["start_date"].year.to_s
+  end
+
+  def autogenerated?(f)
+    attrs = YAML.load_file(f)
+    k = "autogenerated"
+    (attrs.has_key?(k) && attrs[k].downcase != "false")
+  end
+
+  def create_year_index_page(year)
+    outbase = @content_dir + "/" + @course_dir + "/" + year
+    outhtml = outbase + ".html"
+    outyaml = outbase + ".yaml"
+    if !File.exist?(outhtml)
+      open(outhtml, "w") do |f|
+        f.write(%[<%= render("_course_year_summary", :year => @item) %>])
+      end
+    end
+    if !File.exist?(outyaml)
+      open(outyaml, "w") do |f|
+        f.write({ "title" => year }.to_yaml)
+      end
+    end
+  end
+
+  def make_material_list(d, excludes = [])
+    make_material_list1(d, [], 0, excludes).join("")
+  end
+
+  # markdown material list
+  def make_material_list1(d, acc, indent = 0, excludes = [])
+    s = lambda { |y, x| (" " * x) + y }
+    link = lambda { |href|
+      # strip leading dir
+      href = href.split("/")[1..-1].join("/")
+      "[#{File.basename(href)}](#{href})"
+    }
+    Dir["#{d}/*"].each do |f|
+      next if excludes.map { |pat| pat.match(f) }.reduce(:|)
+      if File.directory?(f)
+        acc << s.call("* #{File.basename(f)}\n", indent)
+        make_material_list1(f, acc, indent + 4)
+      else
+        acc << s.call("* " + link.call(f) + "\n", indent)
+      end
+    end
+    acc
+  end
+
+  def write_content(base, data)
+    dest_html = "#{base}.md"
+    dest_yaml = "#{base}.yaml"
+    FileUtils.mkdir_p(File.dirname(dest_html))
+    open(dest_html, "w") { |fh| fh.write(data[:content]) }
+    open(dest_yaml, "w") { |fh| fh.write(data[:attrs].to_yaml) }
+    p = base.sub(/.*\/content\/(.*$)/, "\\1")
+    puts "CREATED: #{p} (.md, .yaml)"
+  end
+
+  def verify_nanoc_dir
+    must_have = ["content", "layouts", "lib"]
+    all_there = must_have.map { |d| File.directory? d }.reduce(:&)
+    if (!all_there)
+      $stderr.puts("Current directory does not look like site root.  " +
+                   "Expecting to find:")
+      $stderr.puts(must_have.join(", "))
+      exit 1
+    end
+    if !(File.directory?("output"))
+      $stderr.puts("Please run 'rake' to compile the site before running" +
+                   " this script")
+      exit 1
+    end
+  end
+
+
+  def run_cmd(cmd)
+    raise "command failed: #{cmd}" unless system(cmd)
+  end
+
+  def run_cmd_with_output(cmd)
+    stdin, stdout, stderr = popen3(cmd)
+    stdout.readlines.join
+  end
+
+
+end
+
+if ARGV.empty?
+  print @usage
+  exit
+end
+
+mgr = CourseMgr.new
