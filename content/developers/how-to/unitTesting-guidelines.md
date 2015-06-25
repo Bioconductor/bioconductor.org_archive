@@ -347,7 +347,8 @@ on the package landing page. The value shown in this shield is
 either a percentage (a number from 0 to 100) or 'unknown', which
 could mean:
 
-* The package has no unit tests. Read this page from
+* The package has no unit tests, or the unit tests are not
+  properly configured. Read this page from
   [the beginning](#top) to learn how to add them.
 * The unit tests in the package failed.
 * There was a problem calculating the test coverage.
