@@ -4,7 +4,7 @@
 
 output_dir: output
 staging_deploy_root: biocadmin@merlot2.fhcrc.org:/loc/www/bioconductor-test.fhcrc.org
-production_deploy_root: webadmin@krait:/extra/www/bioc
+production_deploy_root: webadmin@master.bioconductor.org:/extra/www/bioc
 ## CHANGE THIS WHEN WE RELEASE A VERSION:
 release_version: "3.1"
 r_version_associated_with_release: "3.2.1"
