@@ -968,9 +968,9 @@ end
 
 def recent_spb_builds
     begin
-      HTTParty.get("http://pinot.fhcrc.org:8000/recent_builds").body
+      HTTParty.get("http://staging.bioconductor.org:8000/recent_builds").body
     rescue Exception => ex
-      "Can't connect to pinot, not building dashboard"
+      "Can't connect to staging.bioconductor.org, not building dashboard"
     end
 end
 
