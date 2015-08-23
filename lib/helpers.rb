@@ -1402,6 +1402,7 @@ def mirror_status()
     cachefile = "tmp#{File::SEPARATOR}mirror.cache"
     now = Time.now
     yesterday = now - (60*60*24)
+    FileUtils.mkdir_p "tmp"
     if File.exists? (cachefile) and File.mtime(cachefile) > yesterday
         return YAML.load_file(cachefile)
     end
