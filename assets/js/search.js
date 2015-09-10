@@ -15,8 +15,6 @@ jQuery(function() {
 
 
 var getSearchUrl = function(query, start) {
-	// IMPORTANT! change url below (master0 -> master) when the 
-	// time is right.
 	var url = "//master.bioconductor.org/solr/default/select?indent=on&version=2.2&q=" + query + 
 	"&fq=&start=" + start +  "&rows=10&fl=id,score,title&qt=standard&wt=json&explainOther=&hl=on&hl.fl=&hl.fragsize=200";
 	return url;
@@ -95,7 +93,9 @@ var searchResponse = function(data) {
 
 var initSearch = function() {
 	q = getParameterByName("q");
-	
+	q = q.replace(/\/$/, "");
+
+
 	if (q == "") {
 		jQuery("#q").focus();
 	} else {
