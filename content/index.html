@@ -46,21 +46,21 @@
       <td style="padding-left:35px">
 
         <div style="width:50%;float:left;">
-          <%= render("/_install/") %>
+          <%= render("/_install.html") %>
         </div>
 
         <div style="width:50%;float:left;">
-          <%= render("/_learn/") %>
+          <%= render("/_learn.html") %>
         </div>
 
         <br clear="all">
 
         <div style="width:50%;float:left;">
-          <%= render("/_use/") %>
+          <%= render("/_use.html") %>
         </div>
 
         <div style="width:50%;float:left;">
-          <%= render("/_develop/") %>
+          <%= render("/_develop.html") %>
         </div>
 
       </td>
@@ -72,7 +72,7 @@
 <div class="hp_options_box">
 
   <div style="float:left;width:33%;">
-    <%= render('/_mlwidget/', :ml_item => get_biostar_post_summaries(@items)) %>
+    <%= render('/_mlwidget.html', :ml_item => get_biostar_post_summaries(@items)) %>
   </div>
 
   <div style="float:left;width:33%;">
@@ -80,7 +80,7 @@
       <h2><img src="/images/icons/calendar.gif" alt=""/><a href="/help/events/">Events</a></h2>
       
       
-      <%= render('/_upcoming_events/', :events => find_item(@items, '/help/events/')) %>
+      <%= render('/_upcoming_events.html', :events => find_item(@items, '/help/events/')) %>
       <p style="font-weight:bold"><a href="/help/events/">See all events</a>&nbsp;
 	  <span class="blue">&raquo;</span></p>
     </div>

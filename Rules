@@ -5,11 +5,24 @@ require 'httparty'
 
 @@config = YAML.load_file("./config.yaml")
 
-
-compile "/about/*.md" do
-  require 'pry';binding.pry
-end  
-
+# compile '**' do
+#   require 'pry';binding.pry
+# end
+# compile '/**' do
+#   require 'pry';binding.pry
+# end
+# compile "/about*" do
+#   require 'pry';binding.pry
+# end
+# compile "/about/**/*.*" do
+#   require 'pry';binding.pry
+# end  
+# compile '/**/**/*' do
+#   require 'pry';binding.pry
+# end
+# compile '/**/*' do
+#   require 'pry';binding.pry
+# end
 
 compile '/mailing-list-posts/' do
   filter :erb
@@ -28,15 +41,15 @@ end
 compile '/help/newsletters/*' do
     filter :erb
     filter :kramdown, :auto_id_stripping => true
-    layout 'default'
+    layout '/layouts/default.html'
 end
 
 compile '/help/publications/papers/pubmed/' do
   filter :erb
 end
 
-compile '*' do
-  case item[:extension]
+compile '/**/**' do # was *
+  case item.attributes[:extension]
   when /md$/, /markdown$/
     filter :image_captions
     filter :erb
@@ -49,10 +62,10 @@ compile '*' do
   when /sass$/
     filter :sass
   end
-  if item[:layout]
-    layout item[:layout]
+  if item.attributes[:layout]
+    layout "/#{item.attributes[:layout]}.html"
   elsif !item.binary?
-    layout 'default'
+    layout '/default.html'
   end
   filter :google_analytics unless item.binary?
 end
@@ -73,57 +86,63 @@ route '/help/publications/papers/pubmed/*' do
 end
 
 route '/sitemap/' do
-  item.identifier.chop + '.xml'
+  item.identifier.to_s.chop + '.xml'
 end
 
 route '/style/*/' do
-  item.identifier.chop + '.css'
+  item.identifier.to_s.chop + '.css'
 end
 
 # biocViews hierarchy
 route /BiocViews/ do
-  segs = item.identifier.split "/"
+  segs = item.identifier.to_s.split "/"
   segs.pop
   version = segs.pop
   # note that we rely on the rake :pre_compile task to create duplicate versions of this file
   # for each bioC version for which the "new" style BiocViews tree is created.
   #"/help/bioc-views/#{config[:release_version]}/BiocViews.html"
-  item[:rebase] = true
+  item.attributes[:rebase] = true
   "/packages/#{version}/BiocViews.html"
 end
 
 # index pages (package lists)
 route /^\/help\/bioc-views\/package-pages\/all-/ do
-  segs = item.identifier.split("-")
+  segs = item.identifier.to_s.split("-")
   version = segs.pop.gsub("/", "")
   long_repo_name = segs.pop
   repo_map = {"Software" => "bioc", "AnnotationData" => "data/annotation", "ExperimentData" => "data/experiment"}
-  version = item[:bioc_version_num]
+  version = item.attributes[:bioc_version_num]
   #"/help/bioc-views/#{version}/#{repo_map[long_repo_name]}/index.html"
   "/packages/#{version}/#{repo_map[long_repo_name]}/index.html"
 end
 
 # package detail pages
 route /^\/help\/bioc-views\/package-pages\// do
-  pkg_name = item.identifier.split("/").last
-  version = item[:bioc_version_num]
-  #"/help/bioc-views/#{version}/#{item[:repo]}html/#{pkg_name}.html"
-  "/packages/#{version}/#{item[:repo]}html/#{pkg_name}.html"
+  pkg_name = item.identifier.to_s.split("/").last
+  version = item.attributes[:bioc_version_num]
+  #"/help/bioc-views/#{version}/#{item.attributes[:repo]}html/#{pkg_name}.html"
+  "/packages/#{version}/#{item.attributes[:repo]}html/#{pkg_name}.html"
 end
 
 
-route '*' do
+route '/**/**' do # was '*'
   if item.binary?
-    item.identifier.chop + "." + item[:extension]
+    item.identifier.to_s.chop + "." + item.attributes[:extension]
   else
-    item.identifier + 'index.html'
+    item.identifier.to_s + 'index.html'
   end
 end
 
 # layouting rules
 
+layout '/**/**', :erb # was: 
 layout '*', :erb
 
+# layout '/default.*', :erb
+
+layout '/default.html', :erb
+
+# layout '_default', :erb
 
 preprocess do 
   unless(ENV.has_key?("QUICK_NANOC_COMPILE") && ENV["QUICK_NANOC_COMPILE"] == "true")

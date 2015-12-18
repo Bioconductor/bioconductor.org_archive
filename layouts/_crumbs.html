@@ -1,6 +1,7 @@
 <div id="PageBreadcrumbs" class="PageBreadcrumbs">
   <ul>
-    <% crumbs = get_updated_breadcrumbs(breadcrumbs_trail, item) %>
+    <% #require 'pry';binding.pry # see https://groups.google.com/forum/#!topic/nanoc/0ChXgbTKzzk %>
+    <% crumbs = get_updated_breadcrumbs(breadcrumbs_trail(), item) %>
     <% crumbs.each_with_index do |crumb, i| %>
     <% next unless crumb %>
       <% if (i + 1 < crumbs.length) %>

@@ -349,7 +349,7 @@ end
 
 def get_biostar_post_summaries(items)
   # at some point, might need to order these....
-  items.find_all{|i| i.identifier =~ /\/biostar_list\//}
+  items.to_a.find_all{|i| i.identifier.to_s =~ /\/biostar_list\//}
 end
 
 
@@ -486,9 +486,13 @@ def get_stats_url(package)
 end
 
 def get_updated_breadcrumbs(old_breadcrumbs, item)
-  return old_breadcrumbs unless (old_breadcrumbs.last.identifier =~ /package-pages/)
+  puts "breadcrumbs are broke ! fix em!"
+  return [] if true
+  #if old_breadcrumbs.uniq.length == 1 and old_breadcrumbs.first.nil?
+
+  return old_breadcrumbs unless (old_breadcrumbs.last.identifier.to_s =~ /package-pages/)
   index_page = false
-  index_page = true if item.identifier =~ /\/package-pages\/all-/
+  index_page = true if item.identifier.to_s =~ /\/package-pages\/all-/
   last_crumb = old_breadcrumbs.last
   home_crumb = old_breadcrumbs.first
   path = item.path
@@ -499,9 +503,9 @@ def get_updated_breadcrumbs(old_breadcrumbs, item)
   repo = ["Experiment", "data/experiment"] if path =~ /\/data\/experiment\//
   crumbs = []
   crumbs.push home_crumb
-  ver_crumb = Nanoc::Item.new("", {:title => "Bioconductor #{ver}"}, "/packages/#{ver}/BiocViews.html")
+  ver_crumb = new_item("", {:title => "Bioconductor #{ver}"}, "/packages/#{ver}/BiocViews.html")
   crumbs.push ver_crumb
-  repo_crumb = Nanoc::Item.new("", {:title => "#{repo.first} Packages"}, "/packages/#{ver}/#{repo.last}/")
+  repo_crumb = new_item("", {:title => "#{repo.first} Packages"}, "/packages/#{ver}/#{repo.last}/")
   crumbs.push repo_crumb unless index_page
   crumbs.push last_crumb
   crumbs
