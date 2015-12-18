@@ -1,9 +1,9 @@
 # encoding: utf-8
 require 'nokogiri'
 require 'httparty'
-require 'nanoc3'
+require 'Nanoc'
 
-class PubmedPapers < Nanoc3::DataSource
+class PubmedPapers < Nanoc::DataSource
   identifier :pubmed_papers    
 
   def up
@@ -49,9 +49,9 @@ class PubmedPapers < Nanoc3::DataSource
       # process results
       if !res.empty?
 	# remove dups
-	res.uniq! { |x| x[:doi] }
+	res.uniq! { |x| x.attributes[:doi] }
 	# sort by date
-	res.sort! { |x, y| y[:date] <=> x[:date] }
+	res.sort! { |x, y| y.attributes[:date] <=> x.attributes[:date] }
 	# take the top ones
 	entries = res[0, @opts[:retmax]]
 	write_cache({
@@ -132,7 +132,7 @@ class PubmedPapers < Nanoc3::DataSource
       
       attributes[:date] = date
 
-      entries.push Nanoc3::Item.new("unused", attributes, id, nil)
+      entries.push new_item("unused", attributes, id)
     end
     puts("done")
     return entries

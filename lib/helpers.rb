@@ -1,10 +1,11 @@
+#There is a syntax error somewhere in this file. Nobody knows where.
 # encoding: utf-8
 require 'nanoc'
-include Nanoc3::Helpers::Text
-include Nanoc3::Helpers::Rendering
-include Nanoc3::Helpers::Breadcrumbs
-include Nanoc3::Helpers::XMLSitemap
-include Nanoc3::Helpers::HTMLEscape
+include Nanoc::Helpers::Text
+include Nanoc::Helpers::Rendering
+include Nanoc::Helpers::Breadcrumbs
+include Nanoc::Helpers::XMLSitemap
+include Nanoc::Helpers::HTMLEscape
 
 
 # coding: utf-8
@@ -388,7 +389,7 @@ end
 def add_missing_info
   items.each do |item| 
     if item[:file] 
-      # nanoc3 >= 3.1 will have this feature, add for older versions 
+      # Nanoc >= 3.1 will have this feature, add for older versions 
       item[:extension] ||= item[:file].path.match(/\.(.*)$/)[0]
     end 
   end
@@ -498,9 +499,9 @@ def get_updated_breadcrumbs(old_breadcrumbs, item)
   repo = ["Experiment", "data/experiment"] if path =~ /\/data\/experiment\//
   crumbs = []
   crumbs.push home_crumb
-  ver_crumb = Nanoc3::Item.new("", {:title => "Bioconductor #{ver}"}, "/packages/#{ver}/BiocViews.html")
+  ver_crumb = Nanoc::Item.new("", {:title => "Bioconductor #{ver}"}, "/packages/#{ver}/BiocViews.html")
   crumbs.push ver_crumb
-  repo_crumb = Nanoc3::Item.new("", {:title => "#{repo.first} Packages"}, "/packages/#{ver}/#{repo.last}/")
+  repo_crumb = Nanoc::Item.new("", {:title => "#{repo.first} Packages"}, "/packages/#{ver}/#{repo.last}/")
   crumbs.push repo_crumb unless index_page
   crumbs.push last_crumb
   crumbs

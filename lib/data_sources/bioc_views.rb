@@ -1,4 +1,4 @@
-class BiocViews < Nanoc3::DataSource
+class BiocViews < Nanoc::DataSource
 
   require 'pp'
   require 'rubygems'
@@ -24,6 +24,10 @@ class BiocViews < Nanoc3::DataSource
   
   # todo - find out if there is a way to skip items() altogether if things are not found in up()
   def up
+    if ENV.has_key?("QUICK_NANOC_COMPILE") && ENV["QUICK_NANOC_COMPILE"] == "true"
+      puts "suppressing GMANE and biocViews compilation"
+      return []
+    end
     @bad_packages = ["snpMatrix2"] # don't process these
 
     #@repos = {"bioc/" => "Software", "data/annotation/" => "AnnotationData", "data/experiment/" => "ExperimentData"}
@@ -89,9 +93,10 @@ class BiocViews < Nanoc3::DataSource
   
   
   def get_index_page(packages, repo, version)
-    item = Nanoc3::Item.new("", {}, "all-#{repo}-#{version}")
-    item[:rebase] = true
-    rep = Nanoc3::ItemRep.new(item, :package_index_page)
+    # item = Nanoc::Item.new("", {}, "all-#{repo}-#{version}")
+    item = new_item("", {}, "/all-#{repo}-#{version}")
+    item.attributes[:rebase] = true
+    rep = Nanoc::ItemRep.new(item, :package_index_page)
     
     
     item[:package_index_page] = true
@@ -132,7 +137,13 @@ class BiocViews < Nanoc3::DataSource
   end
   
   def items
-    
+    if ENV.has_key?("QUICK_NANOC_COMPILE") && ENV["QUICK_NANOC_COMPILE"] == "true"
+      puts "suppressing GMANE and biocViews compilation"
+      return []
+    end
+
+
+
     unless @good_to_go
       puts "BiocViews_DataSource: no JSON file(s) found. Package detail pages will not be built"
       return []
@@ -169,7 +180,8 @@ class BiocViews < Nanoc3::DataSource
         for package in packages.keys
           repo = k
           id = "/#{version}/#{repo}#{package}/"
-          item = Nanoc3::Item.new("", packages[package], id)
+          # item = Nanoc::Item.new("", packages[package], id)
+          item = new_item("", packages[package], id)
           
           item[:rebase] = true
           item[:subnav] = []
@@ -189,7 +201,7 @@ class BiocViews < Nanoc3::DataSource
           else
             item[:bioc_version_str] = nil
           end
-          rep = Nanoc3::ItemRep.new(item, :unique_name)
+          rep = Nanoc::ItemRep.new(item, :unique_name)
 
           for sym in link_list
             new_sym = "#{sym.to_s}_repo".to_sym

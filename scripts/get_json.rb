@@ -151,7 +151,6 @@ class GetJson
       auth = {:username => "readonly", :password => "readonly"}
       File.open("#{dir}/biocViewsVocab.sqlite", "wb") do |f|
           resp = HTTParty.get(url, :verify => false, :basic_auth => auth)
-          # require 'pry';binding.pry
           f.write resp
       end
       #`curl -s -u  readonly:readonly #{url} > #{dir}/biocViewsVocab.sqlite`

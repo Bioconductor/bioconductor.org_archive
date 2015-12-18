@@ -73,7 +73,7 @@ task :pre_compile do
 end
 
 task :real_compile do
-  fail "compilation failed" unless system "nanoc co"
+  fail "compilation failed" unless system "bundle exec nanoc co"
 end
 
 task :post_compile do
@@ -801,6 +801,7 @@ task :get_all_shields => [:get_build_dbs, :get_svn_logs,
 # make sure this is run via crontab every hour
 desc "extract mirror information to csv file"
 task :mirror_csv do
+    puts "hello from mirror_csv!!!!"
     config = YAML.load_file("./config.yaml")
     CSV.open(File.join("assets", "BioC_mirrors.csv"), "w") do |csv|
       csv << ["Name","Country","City","URL","Host","Maintainer","OK","CountryCode"]

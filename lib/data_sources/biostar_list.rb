@@ -7,7 +7,7 @@ require 'rss'
 
 
 
-class BiostarList < Nanoc3::DataSource
+class BiostarList < Nanoc::DataSource
     identifier :biostar_list
 
     def fetch
@@ -30,7 +30,7 @@ class BiostarList < Nanoc3::DataSource
             content = "unused"
             identifier = item.link.sub("https://", "/biostar_list/#{i}/")
             mtime = nil
-            ret.push Nanoc3::Item.new(content, attributes, identifier, mtime)
+            ret.push new_item(content, attributes, identifier)#, mtime)
             break if i == (num_wanted - 1)
         end
         ret

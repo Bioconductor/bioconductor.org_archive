@@ -6,6 +6,11 @@ require 'httparty'
 @@config = YAML.load_file("./config.yaml")
 
 
+compile "/about/*.md" do
+  require 'pry';binding.pry
+end  
+
+
 compile '/mailing-list-posts/' do
   filter :erb
   ## no layout as this gets included in homepage '/'
