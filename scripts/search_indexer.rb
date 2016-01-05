@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
+=begin
+This script controls Solr.
+=end
+
 require 'pp'
 require 'fileutils'
 require 'yaml'
