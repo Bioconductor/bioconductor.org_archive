@@ -22,6 +22,8 @@ require 'csv'
 
 include Open3
 
+site_config = YAML.load_file("./config.yaml")
+
 @clear_search_index_commands = [
   "curl -s http://localhost:8983/solr/update --data-binary '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'",
   "curl -s http://localhost:8983/solr/update --data-binary '<optimize/>' -H 'Content-type:text/xml; charset=utf-8'",
@@ -32,7 +34,6 @@ include Open3
 
 desc "write version info to doc root for javascript to find"
 task :write_version_info do
-  site_config = YAML.load_file("./config.yaml")
   js = %Q(var develVersion = "#{site_config["devel_version"]}";\nvar releaseVersion="#{site_config["release_version"]}";\n)
   js += %Q(var versions = [")
   js += site_config["versions"].join(%Q(",")) + %Q("];\n)
@@ -43,7 +44,6 @@ end
 
 desc "copy assets to output directory"
 task :copy_assets do
-  site_config = YAML.load_file("./config.yaml")
   output_dir = site_config["output_dir"]
   system "rsync -gprt --partial --exclude='.svn' assets/ #{output_dir}"
 end
@@ -55,7 +55,6 @@ task :compile => [:pre_compile,
 desc "Pre-compilation tasks"
 task :pre_compile do
   FileUtils.mkdir_p "content/packages"
-  site_config = YAML.load_file("./config.yaml")
   for version in site_config["versions"]
     destdir = "content/packages/#{version}"
     FileUtils.mkdir_p destdir
@@ -77,7 +76,6 @@ end
 
 task :post_compile do
   puts "running post-compilation tasks..."
-  site_config = YAML.load_file("./config.yaml")
   for entry in Dir.entries("#{site_config["output_dir"]}/packages")
     next if entry =~ /^\./
     next unless entry =~ /^[0-9]/
@@ -104,7 +102,6 @@ end
 
 desc "Nuke output directory !! uses rm -rf !!"
 task :real_clean do
-  site_config = YAML.load_file("./config.yaml")
   output_dir = site_config["output_dir"]
   FileUtils.rm_rf(output_dir)
   FileUtils.mkdir_p(output_dir)
@@ -124,7 +121,6 @@ task :default => :build
 desc "deploy (sync) to staging (run on merlot2)"
 task :deploy_staging do
   dst = '/loc/www/bioconductor-test.fhcrc.org'
-  site_config = YAML.load_file("./config.yaml")
   output_dir = site_config["output_dir"]
   system "rsync -av --links --partial --partial-dir=.rsync-partial --exclude='.svn' #{output_dir}/ #{dst}"
   chmod_cmd = "chmod -R a+r /loc/www/bioconductor-test.fhcrc.org/packages/json"
@@ -133,7 +129,6 @@ end
 
 desc "deploy (sync) to production"
 task :deploy_production do
-  site_config = YAML.load_file("./config.yaml")
   src = '/loc/www/bioconductor-test.fhcrc.org'
   dst = site_config["production_deploy_root"]
   system "rsync -av --links --partial --partial-dir=.rsync-partial --exclude='.svn' #{src}/ #{dst}/"
@@ -278,7 +273,6 @@ desc "Get JSON files required for BiocViews pages"
 task :prepare_json do
   json_dir = "assets/packages/json"
   FileUtils.mkdir_p json_dir
-  site_config = YAML.load_file("./config.yaml")
   versions = site_config["versions"]
   devel_version = site_config["devel_version"]
   devel_repos = site_config["devel_repos"]
@@ -323,7 +317,6 @@ end
 
 desc "Get Docbuilder Workflows"
 task :get_workflows do
-  site_config = YAML.load_file("./config.yaml")
   home = Dir.pwd
   #FileUtils.rm_rf "workflows_tmp"
   FileUtils.mkdir_p "workflows_tmp"
