@@ -24,13 +24,15 @@ include Open3
 
 site_config = YAML.load_file("./config.yaml")
 
+# TODO: Make these configurable so that we can test outside production!
+masterConnection = "webadmin@master.bioconductor.org"
+standardConnection = "webadmin@bioconductor.org"
+
 @clear_search_index_commands = [
   "curl -s http://localhost:8983/solr/update --data-binary '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'",
   "curl -s http://localhost:8983/solr/update --data-binary '<optimize/>' -H 'Content-type:text/xml; charset=utf-8'",
   "curl -s  http://localhost:8983/solr/update --data-binary '<commit/>' -H 'Content-type:text/xml; charset=utf-8'"
   ]
-
-
 
 desc "write version info to doc root for javascript to find"
 task :write_version_info do
@@ -151,11 +153,11 @@ end
 desc "Clear search index (and local cache) on production. This will cause searches to fail until indexing is re-done!"
 task :clear_search_index_production do
   for command in @clear_search_index_commands
-    puts %Q(ssh webadmin@bioconductor.org "#{command}")
-    system %Q(ssh webadmin@bioconductor.org "#{command}")
+    puts %Q(ssh #{standardConnection} "#{command}")
+    system %Q(ssh #{standardConnection} "#{command}")
   end
-  puts "ssh webadmin@bioconductor.org rm -f /home/webadmin/search_indexer_cache.yaml"
-  system "ssh webadmin@bioconductor.org rm -f /home/webadmin/search_indexer_cache.yaml"
+  puts "ssh #{standardConnection} rm -f /home/webadmin/search_indexer_cache.yaml"
+  system "ssh #{standardConnection} rm -f /home/webadmin/search_indexer_cache.yaml"
 end
 
 desc "Re-index the site for the search engine"
@@ -189,20 +191,20 @@ end
 
 desc "Re-run search indexing on production"
 task :index_production do
-  system("scp config.yaml webadmin@bioconductor.org:~")
-  system("scp scripts/search_indexer.rb webadmin@master.bioconductor.org:~")
-  system("scp scripts/get_links.rb webadmin@master.bioconductor.org:~")
-  system(%Q(ssh webadmin@master.bioconductor.org "cd /home/webadmin && ./get_links.rb /extra/www/bioc > links.txt 2>not_found.txt"))
-  system(%Q(ssh webadmin@master.bioconductor.org "cd /home/webadmin && /home/webadmin/do_index.rb"))
-  #system("ssh webadmin@master.bioconductor.org chmod +x /home/webadmin/index.sh")
-  system(%Q(ssh webadmin@master.bioconductor.org "/bin/sh /home/webadmin/index.sh"))
+  system("scp config.yaml #{standardConnection}:~")
+  system("scp scripts/search_indexer.rb #{masterConnection}:~")
+  system("scp scripts/get_links.rb #{masterConnection}:~")
+  system(%Q(ssh #{masterConnection} "cd /home/webadmin && ./get_links.rb /extra/www/bioc > links.txt 2>not_found.txt"))
+  system(%Q(ssh #{masterConnection} "cd /home/webadmin && /home/webadmin/do_index.rb"))
+  #system("ssh #{masterConnection} chmod +x /home/webadmin/index.sh")
+  system(%Q(ssh #{masterConnection} "/bin/sh /home/webadmin/index.sh"))
 end
 
 desc "Re-run search indexing cran package home pages on production"
 task :index_cran_production do
-  system("scp scripts/cran_search_indexer.rb webadmin@bioconductor.org:~")
-  system("ssh webadmin@bioconductor.org /home/webadmin/do_index_cran.rb")
-  system("ssh webadmin@bioconductor.org /bin/sh /home/webadmin/index_cran.sh")
+  system("scp scripts/cran_search_indexer.rb #{standardConnection}:~")
+  system("ssh #{standardConnection} /home/webadmin/do_index_cran.rb")
+  system("ssh #{standardConnection} /bin/sh /home/webadmin/index_cran.sh")
 end
 
 desc "Runs nanoc's dev server on localhost:3000"
