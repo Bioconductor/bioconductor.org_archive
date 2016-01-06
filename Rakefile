@@ -22,7 +22,6 @@ require 'csv'
 
 include Open3
 
-
 @clear_search_index_commands = [
   "curl -s http://localhost:8983/solr/update --data-binary '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'",
   "curl -s http://localhost:8983/solr/update --data-binary '<optimize/>' -H 'Content-type:text/xml; charset=utf-8'",
@@ -252,7 +251,7 @@ task :json2js do
       unless var.nil?
         obj = JSON.parse(
           File.read(file,
-            :external_encoding => 'iso-8859-1',
+            :external_encoding => 'iso-8859-1'
           )
         )
         
