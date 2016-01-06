@@ -22,11 +22,16 @@ require 'csv'
 
 include Open3
 
-site_config = YAML.load_file("./config.yaml")
+envConfig = YAML.load_file("./environment.yaml")
+site_config = nil
+if (envConfig["environment"].eql? "production")
+  site_config = YAML.load_file("./config.yaml")
+else
+  site_config = YAML.load_file("./dev.config.yaml")
+end
 
-# TODO: Make these configurable so that we can test outside production!
-masterConnection = "webadmin@master.bioconductor.org"
-standardConnection = "webadmin@bioconductor.org"
+masterConnection = site_config["masterConnection"]
+standardConnection = site_config["standardConnection"]
 
 @clear_search_index_commands = [
   "curl -s http://localhost:8983/solr/update --data-binary '<delete><query>*:*</query></delete>' -H 'Content-type:text/xml; charset=utf-8'",
