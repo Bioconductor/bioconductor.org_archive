@@ -141,9 +141,13 @@ task :deploy_production do
   system "rsync -av --links --partial --partial-dir=.rsync-partial --exclude='.svn' #{src}/ #{dst}/"
 end
 
-
 desc "Clear search index (and local cache)"
 task :clear_search_index do
+  # This Rake task assumes solr is running locally, as does the function 
+  # `SearchIndexer.is_solr_running` .  Might as well fail fast.
+  if ! (SearchIndexer.is_solr_running?)
+    raise "Can't continue, Solr isn't running locally."
+  end
   for command in @clear_search_index_commands
     puts command
     system command

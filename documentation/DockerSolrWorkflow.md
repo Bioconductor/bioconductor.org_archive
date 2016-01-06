@@ -1,11 +1,11 @@
 Create a named container, e.g. "dev\_solr", as below : 
 
 ```
-docker run -it makuk66/docker-solr:5.2.1 --name dev_solr
+docker run --name dev_solr -p 8983:8983 -it makuk66/docker-solr:5.2.1
 ```
 (Optionally) run some initial customization : 
 ```
-docker exec -u root -it dev_solr /bin/bash -c "`cat DockerKickstart.sh`" /bin/bash -c "`cat DockerKickstart.sh`"
+docker exec -u root -it dev_solr /bin/bash -c "`cat DockerKickstart.sh`"
 ```
 Login with the solr user account: 
 ```
@@ -19,7 +19,7 @@ Login as root and get a real TTY (this is a workaround to a Docker issue) :
 - https://github.com/docker/docker/issues/8755#issuecomment-83403289 
 
 ```
-docker exec -u root -it gloomy_hodgkin script -q -c "/bin/bash" /dev/null
+docker exec -u root -it dev_solr script -q -c "/bin/bash" /dev/null
 ```
 
 Create an example "core" (search index): 
@@ -45,5 +45,16 @@ http://localhost:8983/solr/admin/cores?action=CREATE&name=gettingstarted&instanc
 
 Ingest some data : 
 ```
-docker exec -it --user=solr my_solr bin/post -c gettingstarted example/exampledocs/manufacturers.xml
+docker exec -it --user=solr dev_solr bin/post -c gettingstarted example/exampledocs/manufacturers.xml
+
+docker exec -it --user=solr dev_solr bin/post -c gettingstarted example/exampledocs/sample.html
 ```
+
+To ingest a large collection of data, do this : 
+```
+bin/post -c gettingstarted docs/
+```
+
+#### To query for data : 
+- Open a browser, to the core's query page : 
+    http://localhost:8983/solr/#/gettingstarted/query
