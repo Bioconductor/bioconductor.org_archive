@@ -22,13 +22,12 @@ class SearchIndexer
     $stdout.reopen("/dev/null", "w")
     $stderr.reopen("/dev/null", "w")
     
-    
     cmd = "curl http://localhost:8983"
     result = system(cmd)
     
     $stdout.reopen orig_stdout
     $stderr.reopen orig_stderr
-    result
+    return result
   end
 
   def get_boost(url)
@@ -41,7 +40,6 @@ class SearchIndexer
     return 1
   end
   
-  
   def throw_out_bad_files(file_list)
     ret = []
     for file in file_list
@@ -53,7 +51,7 @@ class SearchIndexer
         puts "THROWING OUT #{file}"
       end
     end
-    ret
+    return ret
   end
 
   def initialize(args)
@@ -63,11 +61,11 @@ class SearchIndexer
     @devel_version = site_config["devel_version"]
     
     unless args.size == 4
-      puts "invalid arguments!"
+      puts "Invalid arguments!"
+      puts "Usage: #{$0} [directory-to-index] [path-to-cache-file] [path-to-output-script] [site-url]"
       exit 1
     end
     directory_to_index, path_to_cache_file, path_to_output_script, site_url = args
-    
     
     script_file_name = "#{path_to_output_script}/index.sh"
     FileUtils.rm_f script_file_name
@@ -82,33 +80,20 @@ class SearchIndexer
     cache_exists = false
 
     curl_path = `which curl`.chomp
-
-
-
+    
     cachefilename = "#{path_to_cache_file}/search_indexer_cache.yaml"
 
     if File.exists?(cachefilename) #todo also make sure file is not empty
       cache = YAML.load_file(cachefilename)
       cache_exists = true
     end
-
-
-
-    #allfilestr = `find .`
-
-
+=
     extensions_to_index = %w{html doc pdf R}
     regex = Regexp.new("\\." + extensions_to_index.join("$|\\.") + "$")
-
-
-    #allfiles = allfilestr.split("\n")
 
     allfiles = get_list_of_files_to_index(directory_to_index, site_url)
 
     goodfiles = allfiles.grep(regex)
-    
-    ###goodfiles = throw_out_bad_files(goodfiles)
-    #exit if true
 
     url = "http://localhost:8983/solr/default/update"
 
@@ -117,11 +102,8 @@ class SearchIndexer
     pwd = FileUtils.pwd()
     FileUtils.cd(directory_to_index)
     
-    
     goodfiles.each do |file|
-      
-#      puts file
-      
+
       cachecopy[file] = 1
       cleanfile = file.gsub(/^\./,"")
       bail = false
@@ -184,8 +166,6 @@ class SearchIndexer
         script_file.puts "cd #{pwd}"
       end
     end
-    
-
 
     cmd = "curl -s #{url} --data-binary '<commit/>' -H 'Content-type:text/xml; charset=utf-8'"
     #system(cmd)
@@ -193,12 +173,7 @@ class SearchIndexer
     script_file.puts cmd
     script_file.close()
     File.chmod(0777, script_file_name)
-    
-    #`#{cmd}`
 
-    #FileUtils.cd(pwd)
-    
-    
     File.open(cachefilename, "w") do |cachefile|
       YAML.dump(cache, cachefile)
     end
@@ -219,7 +194,7 @@ class SearchIndexer
     for line in lines
       line.chomp!
     end
-    lines
+    return lines
   end
   
   def get_list_of_files_to_index_old(directory_to_index, site_url)
@@ -234,7 +209,6 @@ class SearchIndexer
     
     f = File.open(spider_output_file)
 
-
     url_hash = {}
 
     urls = []
@@ -248,7 +222,6 @@ class SearchIndexer
         url_hash[line.split(/\s/).last()] = 1
       end
 
-
       if line =~ / broken links\.$/
         broken_link_mode = true
       end
@@ -256,8 +229,6 @@ class SearchIndexer
       if broken_link_mode and line =~ /^http:|^https:/i
         broken_links.push(line)
       end
-
-
     end
 
     urls = url_hash.keys.sort
@@ -269,8 +240,6 @@ class SearchIndexer
     end
 
     filtered = (urls - broken_links)
-
-
     file_list_file = Tempfile.new("file_list")
     file_list_filename = file_list_file.path()
     file_list_file.close()
@@ -279,7 +248,6 @@ class SearchIndexer
     system("find -L . -type f > #{file_list_filename}")
     FileUtils.cd(pwd)
     
-
     f = File.open(file_list_filename)
     all = f.readlines.map{|i|i.chomp}
     #puts "!#{all[1]}!"
@@ -288,33 +256,16 @@ class SearchIndexer
     non_orphans = all - orphans
 
     #puts non_orphans.join("\n")
-        
-
     #    puts "#{filtered.size} total links found, #{broken_links.size} broken links found, #{filtered.size} filtered links found"
     #    puts "#{all.size} files on filesystem, #{orphans.size} orphans, non-orphans = #{non_orphans.size}"
     
-    
-    
-    
-    non_orphans
-    
-    
+    return non_orphans
   end
 
   # url = 
   # http://localhost:8983/solr/select?indent=on&version=2.2&q=oligonucleotide&fq=&start=0&rows=10&fl=id,score,title&qt=standard&wt=json&explainOther=&hl=on&hl.fl=
 
-
-
-
-
-
 end  
-
-#unless (ARGV.length == 3)
-#  puts "usage: #{$0} [directory-to-index] [path-to-cache-file] [path-to-output-script] [site-url]"
-#  exit 1
-#end
 
 #si = SearchIndexer.new(ARGV)
  
