@@ -313,45 +313,6 @@ can map our `keys` to.
 
 ### Map manufacturer IDs to gene symbol
 
-Before considering particular tasks, we should first cover the
-question of how to determine what input (`keys`) and output
-(`columns`) are available for a particular annotation package. The
-`keytypes` function will return all types of annotation that can be
-used as input. As an example, let's use the `org.Hs.eg.db` package.
-
-	> library(org.Hs.eg.db)
-	> keytypes(org.Hs.eg.db)
-	[1] "ACCNUM"       "ALIAS"        "ENSEMBL"      "ENSEMBLPROT"  "ENSEMBLTRANS"
-	[6] "ENTREZID"     "ENZYME"       "EVIDENCE"     "EVIDENCEALL"  "GENENAME"    
-	[11] "GO"           "GOALL"        "IPI"          "MAP"          "OMIM"        
-	[16] "ONTOLOGY"     "ONTOLOGYALL"  "PATH"         "PFAM"         "PMID"        
-	[21] "PROSITE"      "REFSEQ"       "SYMBOL"       "UCSCKG"       "UNIGENE"     
-	[26] "UNIPROT"
-
-We can list all the available `keys` for a given `keytype` using the
-`keys` function.
-
-	> head(keys(org.Hs.eg.db))
-	[1] "1"  "2"  "3"  "9"  "10" "11"
-	
-	> head(keys(org.Hs.eg.db, "ENSEMBLPROT"))
-	[1] "ENSP00000263100" "ENSP00000470909" "ENSP00000323929" "ENSP00000438599"
-	[5] "ENSP00000445717" "ENSP00000385710"
-
-And we can get all the available `columns`, or annotation data that we
-can map our `keys` to.
-
-	> columns(org.Hs.eg.db)
-	[1] "ACCNUM"       "ALIAS"        "ENSEMBL"      "ENSEMBLPROT"  "ENSEMBLTRANS"
-	[6] "ENTREZID"     "ENZYME"       "EVIDENCE"     "EVIDENCEALL"  "GENENAME"    
-	[11] "GO"           "GOALL"        "IPI"          "MAP"          "OMIM"        
-	[16] "ONTOLOGY"     "ONTOLOGYALL"  "PATH"         "PFAM"         "PMID"        
-	[21] "PROSITE"      "REFSEQ"       "SYMBOL"       "UCSCKG"       "UNIGENE"     
-	[26] "UNIPROT"
-
-
-#### Map manufacturer IDs to gene symbol
-
 One common task is to annotate a microarray experiment by mapping the
 manufacturer's IDs to something more general, such as a HUGO gene
 symbol, or an NCBI (Gene, GenBank, RefSeq, UniGene) or Ensembl (Ensembl
