@@ -200,7 +200,7 @@ end
 
 desc "Re-run search indexing on production"
 task :index_production do
-  system("scp config.yaml #{standardConnection}:~")
+  system("scp config.yaml #{masterConnection}:~")
   system("scp scripts/search_indexer.rb #{masterConnection}:~")
   system("scp scripts/get_links.rb #{masterConnection}:~")
   system(%Q(ssh #{masterConnection} "cd /home/webadmin && ./get_links.rb /extra/www/bioc > links.txt 2>not_found.txt"))
