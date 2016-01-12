@@ -58,3 +58,106 @@ bin/post -c gettingstarted docs/
 #### To query for data : 
 - Open a browser, to the core's query page : 
     http://localhost:8983/solr/#/gettingstarted/query
+
+
+#### Testing ingest of production data, using "vanilla" defaults
+1. Create a new core
+```
+docker exec -it --user=solr dev_solr bin/solr create_core -c test1
+```
+2. Ingest some files (this doesn't really work...)
+```
+curl -s "http://localhost:8983/solr/test1/update/extract" -F "myfile=@extra/www/bioc/packages/release/extra/aCGH.html"
+curl -s "http://localhost:8983/solr/test1/update/extract" -F "myfile=@extra/www/bioc/packages/release/extra/ag.html"
+curl -s "http://localhost:8983/solr/test1/update/extract" -F "myfile=@extra/www/bioc/packages/release/extra/adme16cod.html"
+curl -s "http://localhost:8983/solr/test1/update/extract" -F "myfile=@extra/www/bioc/packages/release/extra/ath1121501.html"
+```
+
+
+1. Create a new core
+```
+docker exec -it --user=solr dev_solr bin/solr create_core -c test2
+```
+2. Ingest some files (results in decent output, but no path to file)
+```
+curl "http://localhost:8983/solr/test2/update/extract?commit=true&captureAttr=true" -F "myfile=@extra/www/bioc/packages/release/extra/html/ncdf.html"
+curl "http://localhost:8983/solr/test2/update/extract?commit=true&captureAttr=true" -F "myfile=@extra/www/bioc/packages/release/extra/html/XMLRPC.html"
+curl "http://localhost:8983/solr/test2/update/extract?commit=true&captureAttr=true" -F "myfile=@extra/www/bioc/packages/release/extra/html/RCurl.html""
+
+```
+
+
+1. Create a new core
+```
+docker exec -it --user=solr dev_solr bin/solr create_core -c test3
+```
+2. Ingest some files 
+```
+curl "http://localhost:8983/solr/test3/update/extract?commit=true&captureAttr=true&resource.name=extra/www/bioc/packages/release/extra/html/ncdf.html" -F "myfile=@extra/www/bioc/packages/release/extra/html/ncdf.html"
+curl "http://localhost:8983/solr/test3/update/extract?commit=true&captureAttr=true&resource.name=extra/www/bioc/packages/release/extra/html/XMLRPC.html" -F "myfile=@extra/www/bioc/packages/release/extra/html/XMLRPC.html"
+curl "http://localhost:8983/solr/test3/update/extract?commit=true&captureAttr=true&resource.name=extra/www/bioc/packages/release/extra/html/RCurl.html" -F "myfile=@extra/www/bioc/packages/release/extra/html/RCurl.html"
+```
+3. The above is sufficient, to allow us to execute a query like : 
+`http://localhost:8983/solr/test3/select?q=*%3A*&fl=resourcename%2Ctitle%2Ccontent&wt=json&indent=true`
+and retrieve results like :
+```
+{
+  "responseHeader":{
+    "status":0,
+    "QTime":0,
+    "params":{
+      "q":"*:*",
+      "indent":"true",
+      "fl":"resourcename,title,content",
+      "wt":"json"}},
+  "response":{"numFound":3,"start":0,"docs":[
+      {
+        "resourcename":["extra/www/bioc/packages/release/extra/html/ncdf.html"],
+        "title":["ncdf"]},
+      {
+        "resourcename":["extra/www/bioc/packages/release/extra/html/XMLRPC.html"],
+        "title":["XMLRPC"]},
+      {
+        "resourcename":["extra/www/bioc/packages/release/extra/html/RCurl.html"],
+        "title":["RCurl"]}]
+  }}
+```
+
+
+
+
+1. Create a new core
+```
+docker exec -it --user=solr dev_solr bin/solr create_core -c test4
+```
+2. Ingest some files 
+```
+curl "http://localhost:8983/solr/test4/update/extract?extractOnly=true&captureAttr=true&resource.name=extra/www/bioc/packages/release/extra/html/ncdf.html" -F "myfile=@extra/www/bioc/packages/release/extra/html/ncdf.html"
+curl "http://localhost:8983/solr/test4/update/extract?extractOnly=true&captureAttr=true&resource.name=extra/www/bioc/packages/release/extra/html/XMLRPC.html" -F "myfile=@extra/www/bioc/packages/release/extra/html/XMLRPC.html"
+curl "http://localhost:8983/solr/test4/update/extract?extractOnly=true&captureAttr=true&resource.name=extra/www/bioc/packages/release/extra/html/RCurl.html" -F "myfile=@extra/www/bioc/packages/release/extra/html/RCurl.html"
+```
+3. The above is sufficient, to allow us to execute a query like : 
+`http://localhost:8983/solr/test3/select?q=*%3A*&fl=resourcename%2Ctitle%2Ccontent&wt=json&indent=true`
+and retrieve results like :
+```
+{
+  "responseHeader":{
+    "status":0,
+    "QTime":0,
+    "params":{
+      "q":"*:*",
+      "indent":"true",
+      "fl":"resourcename,title,content",
+      "wt":"json"}},
+  "response":{"numFound":3,"start":0,"docs":[
+      {
+        "resourcename":["extra/www/bioc/packages/release/extra/html/ncdf.html"],
+        "title":["ncdf"]},
+      {
+        "resourcename":["extra/www/bioc/packages/release/extra/html/XMLRPC.html"],
+        "title":["XMLRPC"]},
+      {
+        "resourcename":["extra/www/bioc/packages/release/extra/html/RCurl.html"],
+        "title":["RCurl"]}]
+  }}
+```
