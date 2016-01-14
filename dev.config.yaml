@@ -1,11 +1,9 @@
 --- 
-## Lines that must be updated when we release a new software version are indicated in comments below
-
-masterConnection: "webadmin@master.bioconductor.org"
-standardConnection: "webadmin@bioconductor.org"
+masterConnection: "root@172.17.0.2" # A typical Docker connection
+standardConnection: "root@172.17.0.2"
 output_dir: output
-staging_deploy_root: biocadmin@staging.bioconductor.org:/loc/www/bioconductor-test.fhcrc.org
-production_deploy_root: webadmin@master.bioconductor.org:/extra/www/bioc
+staging_deploy_root: CHANGEME
+production_deploy_root: CHANGEME
 ## CHANGE THIS WHEN WE RELEASE A VERSION:
 release_version: "3.2"
 r_version_associated_with_release: "3.2.2"
@@ -31,14 +29,14 @@ devel_repos:
 ## CHANGE this when the build machines change:
 ## also, don't include machines that are not building yet (comment them out)
 active_devel_builders:
-  linux: "zin2"
-  windows: "moscato2"
-  mac_mavericks: "morelia"
+  linux: "CHANGEME"
+  windows: "CHANGEME"
+  mac_mavericks: "CHANGEME"
 active_release_builders:
-  linux: "zin1"
-  windows: "moscato1"
-  mac_snowleopard: "perceval"
-  mac_mavericks: "oaxaca"
+  linux: "CHANGEME"
+  windows: "CHANGEME"
+  mac_snowleopard: "CHANGEME"
+  mac_mavericks: "CHANGEME"
 
 ## CHANGE this when the workflow builder builds
 ## on a newer version of bioc
@@ -52,7 +50,7 @@ single_package_builder:
   bioc_version: "3.1"
   r_version: "3.2"
 
-rss_hub_url: "https://pubsubhubbub.appspot.com/"
+rss_hub_url: "CHANGEME"
 ## CHANGE these as AMI IDS change
 ami_ids:
  bioc2_8: ami-3a2ef452
@@ -65,7 +63,6 @@ ami_ids:
  bioc3_0: ami-be7917d6
  bioc3_1: ami-a3d126c8
  bioc3_2: ami-85d88de0
- bioc3_3: ami-05d6896f
 data_sources: 
 - items_root: /
   layouts_root: /
@@ -77,7 +74,7 @@ data_sources:
   type: biostar_list
   encoding: utf-8
   config:
-    gmane_rss_url: 'http://rss.gmane.org/messages/excerpts/gmane.science.biology.informatics.conductor'
+    gmane_rss_url: 'CHANGEME'
     cache_file: tmp/gmane_list_cache_file.yaml
     encoding: utf-8
     ttl: 10
@@ -95,7 +92,7 @@ data_sources:
     cache_file: tmp/pubmed_cache_file.yaml
     retmax: 20
     ttl: 24
-    baseurl: http://eutils.ncbi.nlm.nih.gov/entrez/eutils/
+    baseurl: CHANGEME
 #   queried database, e.g. "pubmed" or "pmc"; can be a vector
     db: [pubmed, pmc]
     term: bioconductor
@@ -165,90 +162,18 @@ release_dates: # old info from http://en.wikipedia.org/wiki/Bioconductor#Milesto
 mirrors:
  - 0-Bioconductor:
    - institution: Bioconductor, automatic redirection to servers worldwide
-     institution_url: http://bioconductor.org
+     institution_url: CHANGEME
      contact: Bioconductor Maintainer
-     contact_email: maintainer@bioconductor.org
+     contact_email: CHANGEME
      city: World-wide
      mirror_url: http://bioconductor.org/
      https_mirror_url: https://bioconductor.org/
      country_code: us
  - United States:
-   - institution: National Cancer Institute, National Institutes of Health
-     institution_url: http://nci.nih.gov/
-     contact: Sean Davis
-     mirror_url: http://watson.nci.nih.gov/bioc_mirror/
-     contact_email: sdavis2@mail.nih.gov
-     city: Rockville
+   - institution: CHANGEME
+     institution_url: CHANGEME
+     contact: CHANGEME
+     mirror_url: CHANGEME
+     contact_email: CHANGEME
+     city: CHANGEME
      country_code: us
- - Brazil/Latin America:
-   - institution: Department of Genetics, Medical School of Ribeirão Preto, University of São Paulo
-     institution_url: http://rge.fmrp.usp.br/
-     contact: Houtan Noushmehr
-     mirror_url: http://bioconductor.fmrp.usp.br/
-     contact_email: houtan@usp.br
-     city: Ribeirão Preto
-     country_code: br
- - Germany:
-   - institution: Department of Statistics, TU Dortmund
-     institution_url: http://www.statistik.tu-dortmund.de/
-     contact: Uwe Ligges
-     mirror_url: http://bioconductor.statistik.tu-dortmund.de/
-     https_mirror_url: https://bioconductor.statistik.tu-dortmund.de/
-     contact_email: ligges@statistik.tu-dortmund.de
-     city: Dortmund
-     country_code: de
- - Belgium:
-   - institution: OpenAnalytics
-     institution_url: http://www.openanalytics.eu/
-     contact: Willem Ligtenberg
-     mirror_url: http://bioc.openanalytics.eu/
-     contact_email: willem.ligtenberg@openanalytics.eu
-     country_code: be
-     city: Antwerp
- - United Kingdom:
-   - institution: European Bioinformatics Institute
-     institution_url: http://www.ebi.ac.uk/
-     contact: Andrew Tikhonov
-     mirror_url: http://mirrors.ebi.ac.uk/bioconductor/
-     https_mirror_url: https://mirrors.ebi.ac.uk/bioconductor/
-     contact_email: andrew@ebi.ac.uk
-     country_code: uk
-     city: Hinxton
- - Japan:
-   - institution: The Institute of Statistical Mathematics
-     institution_url: http://www.ism.ac.jp/
-     contact: Keisuke Honda
-     mirror_url: http://bioc.ism.ac.jp/
-     https_mirror_url: https://bioc.ism.ac.jp/
-     contact_email: khonda@ism.ac.jp
-     country_code: jp
-     city: Tachikawa
-   - institution: RIKEN Advanced Center for Computing and Communication
-     institution_url: http://accc.riken.jp/en/
-     contact: Itoshi NIKAIDO, Ph.D.
-     mirror_url: http://bioconductor.riken.jp/
-     https_mirror_url: https://bioconductor.riken.jp/
-     contact_email: dritoshi@gmail.com
-     country_code: jp
-     city: Wako
- - China:
-   - institution: University of Science and Technology of China
-     institution_url: http://en.ustc.edu.cn/
-     contact: 
-      - Mirror Maintainer
-      - Tengfei Yin
-     mirror_url: http://mirrors.ustc.edu.cn/bioc/
-     https_mirror_url: https://mirrors.ustc.edu.cn/bioc/
-     contact_email: 
-      - mirrors@ustc.edu.cn
-      - yintengfei@gmail.com
-     country_code: cn
-     city: Anhui
- - Australia:
-   - institution: Australia's Academic and Research Network
-     institution_url: http://www.aarnet.edu.au/
-     contact: Alex Dodson
-     mirror_url: http://mirror.aarnet.edu.au/pub/bioconductor/
-     contact_email: alex.dodson@aarnet.edu.au
-     country_code: au
-     city: Sydney
