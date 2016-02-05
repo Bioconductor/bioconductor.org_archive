@@ -1,41 +1,65 @@
 #!/usr/bin/env ruby
-require 'twitter'
+
+# This script is currently configured
+# via biocadmin's crontab on staging to
+# run every 4 hours.
+
+# Important: This script actually depends on
+# that interval (4 hours), in order to see
+# if new tutorials have been posted since 
+# that time. If you change the interval in crontab,
+# you need to change this script as well.
+
+# It used to automatically tweet any new posts
+# tagged as "tutorials", but people are posting
+# random posts (that are not tutorials) with that
+# tag so we need some human intervention.
+# Modifying (2/5/2016) the script to instead send
+# email to devteam with instructions on how to
+# tweet the post.
+
+# require 'twitter'
 require 'yaml'
 require 'pp'
 require 'nokogiri'
 require 'open-uri'
+require 'time'
+
+nowutc = Time.now.utc
+interval = 14400 # 40 minutes in seconds: 60 * 60 * 4
+
+
+# config_dir = File.expand_path(File.dirname($0))
+
+# twitter_config = YAML::load(File.open("#{config_dir}/twitter.yaml"))
+
+# @user = "bioconductor" # bioconductor
+
+
+# @client = Twitter::REST::Client.new do |config|
+#   config.consumer_key    =  twitter_config["consumer_key"]
+#   config.consumer_secret =  twitter_config["consumer_secret"]
+#   config.access_token    =  twitter_config["access_token"]
+#   config.access_token_secret = twitter_config["access_token_secret"]
+# end
 
 
 
-config_dir = File.expand_path(File.dirname($0))
+# def collect_with_max_id(collection=[], max_id=nil, &block)
+#   response = yield max_id
+#   collection += response
+#   response.empty? ? collection.flatten : collect_with_max_id(collection, response.last.id - 1, &block)
+# end
 
-twitter_config = YAML::load(File.open("#{config_dir}/twitter.yaml"))
+# def get_all_tweets(user)
+#   collect_with_max_id do |max_id|
+#     options = {:count => 3200, :include_rts => true}
+#     options[:max_id] = max_id unless max_id.nil?
+#     @client.user_timeline(user, options)
+#   end
+# end
 
-@user = "bioconductor" # bioconductor
-
-
-@client = Twitter::REST::Client.new do |config|
-  config.consumer_key    =  twitter_config["consumer_key"]
-  config.consumer_secret =  twitter_config["consumer_secret"]
-  config.access_token    =  twitter_config["access_token"]
-  config.access_token_secret = twitter_config["access_token_secret"]
-end
-
-
-
-def collect_with_max_id(collection=[], max_id=nil, &block)
-  response = yield max_id
-  collection += response
-  response.empty? ? collection.flatten : collect_with_max_id(collection, response.last.id - 1, &block)
-end
-
-def get_all_tweets(user)
-  collect_with_max_id do |max_id|
-    options = {:count => 3200, :include_rts => true}
-    options[:max_id] = max_id unless max_id.nil?
-    @client.user_timeline(user, options)
-  end
-end
+__END__
 
 tutorials_in_rss = []
 tweet_hash = {}
