@@ -6,7 +6,7 @@ We are pleased to announce Bioconductor 3.3, consisting of 1211
 software packages, 293 experiment data packages, and 916
 up-to-date annotation packages.
 
-There are 108 new software packages, and many updates and improvements
+There are 107 new software packages, and many updates and improvements
 to existing packages; Bioconductor 3.3 is compatible with R 3.3,
 and is supported on Linux, 32- and 64-bit Windows, and Mac OS X.  This
 release includes an updated Bioconductor [Amazon Machine Image][1]
@@ -41,7 +41,7 @@ for this version of R.
 New Software Packages
 =====================
 
-There are 108 new packages in this release of Bioconductor.
+There are 107 new packages in this release of Bioconductor.
 
 AneuFinder - This package implements functions for CNV calling, plotting, export and analysis from whole-genome single cell sequencing data.
 
@@ -238,8 +238,6 @@ scater - A collection of tools for doing various analyses of single-cell RNA-seq
 scde - The scde package implements a set of statistical methods for analyzing single-cell RNA-seq data. scde fits individual error models for single-cell RNA-seq measurements. These models can then be used for assessment of differential expression between groups of cells, as well as other types of analysis. The scde package also contains the pagoda framework which applies pathway and gene set overdispersion analysis to identify and characterize putative cell subpopulations based on transcriptional signatures. The overall approach to the differential expression analysis is detailed in the following publication: "Bayesian approach to single-cell differential expression analysis" (Kharchenko PV, Silberstein L, Scadden DT, Nature Methods, doi: 10.1038/nmeth.2967). The overall approach to subpopulation identification and characterization is detailed in the following pre-print: "Characterizing transcriptional heterogeneity through pathway and gene set overdispersion analysis" (Fan J, Salathia N, Liu R, Kaeser G, Yung Y, Herman J, Kaper F, Fan JB, Zhang K, Chun J, and Kharchenko PV, Nature Methods, doi:10.1038/nmeth.3734).
 
 scran - This package implements a variety of low-level analyses of single-cell RNA-seq data. Methods are provided for normalization of cell-specific biases, assignment of cell cycle phase, and detection of highly variable and significantly correlated genes.
-
-sevenbridges - R client and utilities for Seven Bridges platform API, from cancer genomics cloud to other Seven Bridges supported platforms.
 
 SMITE - This package builds on the Epimods framework which facilitates finding weighted subnetworks ("modules") on Illumina Infinium 27k arrays using the SpinGlass algorithm, as implemented in the iGraph package. We have created a class of gene centric annotations associated with p-values and effect sizes and scores from any researchers prior statistical results to find functional modules.
 
