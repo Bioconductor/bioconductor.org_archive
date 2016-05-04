@@ -2,7 +2,7 @@ April 4, 2016
 
 Bioconductors:
 
-We are pleased to announce Bioconductor 3.3, consisting of 1211
+We are pleased to announce Bioconductor 3.3, consisting of 1210
 software packages, 293 experiment data packages, and 916
 up-to-date annotation packages.
 
@@ -7806,7 +7806,8 @@ USER VISIBLE CHANGES
 Packages removed since the last release
 =================================
 
-No packages were removed in this release.
+One package (EpiCluster) was removed at the maintainer's request.
+
 17 packages were marked as deprecated, to be removed in the next release.
 
 Deprecated packages:
