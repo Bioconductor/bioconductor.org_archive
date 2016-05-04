@@ -7806,7 +7806,7 @@ USER VISIBLE CHANGES
 Packages removed since the last release
 =================================
 
-One package (EpiCluster) was removed at the maintainer's request.
+No packages were removed from the release.
 
 17 packages were marked as deprecated, to be removed in the next release.
 
