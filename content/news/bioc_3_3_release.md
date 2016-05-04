@@ -1403,31 +1403,6 @@ Changes in version 1.9.1:
 
 - correct wrong viewport names in decorate_* functions
 
-Changes in version 1.7.3:
-
-- `oncoPrint()`: add `barplot_ignore` option to remove alterations that
-  are not put on the barplot.
-
-- `oncoPrint()`: delete extra alter_fun if they are not in the matrix
-
-Changes in version 1.7.2:
-
-- for `anno_points()`, `anno_barplot()`, `anno_boxplot()`, the name is
-  assigned to the viewport with data ranges
-
-- oncoPrint(): top_annotation is assigned with correct height
-
-Changes in version 1.7.1:
-
-- `x` and `y` are `unit` object now in `cell_fun`
-
-- add an example to visualize GO game
-
-- transparency is kept when making discreate color mappings
-
-- `oncoPrint()`: barplots on top now are controlled by `top_annotation`
-  argument
-
 CONFESS
 -------
 
@@ -6015,71 +5990,6 @@ SIGNIFICANT USER-VISIBLE CHANGES
 - Switched to using rmarkdown instead of knitrBootstrap as the default
   engine for creating the reports.
 
-ReportingTools
---------------
-
-Changes in version 2015-3-27:
-
-- Updated email for Jessica L. Larson
-
-Changes in version 2013-4-1:
-
-- Minor bug fixes in NAMESPACE and DESCRIPTION and css
-
-- Enhanced vignettes to include information on our website and
-  publication
-
-- Enhanced vignettes to clarify use of .modifyDF()
-
-- HTML reports are now represented by the HTMLReportRef referenceClass
-
-- HTML output now fully customizable via .toHTML, .toDF and .modifyDF
-  arguments to publish (see vignette)
-
-- Publication mechanism is abstracted and customizable via
-  ReportHandlers class
-
-- ReportingTools output can be used within knitr documents and shiny
-  Web applications (see vignettes knitr.Rmd and shiny.Rnw)
-
-- Persistent representation of the HTML report being created is stored
-  and accessible in the .reportDOM field of HTMLReportRef objects
-
-- [[ and [[<- methods created for HTMLReportRef objects which allow
-  selection, replacement and insertion of objects directly into reports
-
-- Publish generic now accepts a 'name' argument.
-
-- Existing reports can be read in via readReport, modified (via
-  publish, [[<-, or direct manipulation of .reportDOM), and rewritten
-  to file
-
-- Path generic now returns a list/vector of the location slot values of
-  the attached ReportHandlers object(s). These can be paths,
-  connections, or other indications of report destination.
-
-- Link generic function provided to build tables/sets of HTML links
-
-- Added support for publishing ggbio and recordedplot objects
-
-- CSS changed to Twitter Bootstrap
-
-- Bugfixes to how NAs are handled when filtering and sorting columns
-
-- New methods to handle output from running a glmLRT test in edgeR or
-  nbinomTest in DESeq
-
-- DEPRECATED: HTMLReport class is superseded by HTMLReportRef
-
-- DEPRECATED: publication of HTMLReportRefs directly to a report (in
-  order to make an index page) is no longer supported. Use the Link
-  function.
-
-- DEPRECATED: the page generic is not meaningful for HTMLReportRef
-  objects (not all of which have a corresponding connection) and is
-  deprecated. Use path instead.
-
-
 rGREAT
 ------
 
@@ -7215,8 +7125,7 @@ synapter
 
 Changes in version 1.13.1:
 
-- Update call to nQuants to accomodate changes in MSnbase (see commit
-  #ce637b87e491a2f4c9f93490b2f4c7027cbfce16) <2016-02-29 Mon>
+- Update call to nQuants to accomodate changes in MSnbase
 
 - Defunct synapterGUI <2016-02-29 Mon>
 
