@@ -6,7 +6,7 @@ We are pleased to announce Bioconductor 3.3, consisting of 1210
 software packages, 293 experiment data packages, and 916
 up-to-date annotation packages.
 
-There are 108 new software packages, and many updates and improvements
+There are 107 new software packages, and many updates and improvements
 to existing packages; Bioconductor 3.3 is compatible with R 3.3,
 and is supported on Linux, 32- and 64-bit Windows, and Mac OS X.  This
 release includes an updated Bioconductor [Amazon Machine Image][1]
@@ -41,7 +41,7 @@ for this version of R.
 New Software Packages
 =====================
 
-There are 108 new packages in this release of Bioconductor.
+There are 107 new packages in this release of Bioconductor.
 
 AneuFinder - This package implements functions for CNV calling, plotting, export and analysis from whole-genome single cell sequencing data.
 
