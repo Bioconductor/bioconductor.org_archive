@@ -7808,6 +7808,8 @@ No packages were removed from the release.
 
 17 packages were marked as deprecated, to be removed in the next release.
 
+One package, sbgr, was renamed to sevenbridges.
+
 Deprecated packages:
 
 * AffyTiling
