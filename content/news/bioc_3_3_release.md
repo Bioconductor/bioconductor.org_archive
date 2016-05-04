@@ -7808,3 +7808,23 @@ Packages removed since the last release
 
 No packages were removed in this release.
 17 packages were marked as deprecated, to be removed in the next release.
+
+Deprecated packages:
+
+* AffyTiling
+* caFlowQ
+* cellHTS
+* DASiR
+* DAVIDQuery
+* GenoView
+* inSilicoDb
+* inSilicoMerging
+* jmosaics
+* metaX
+* MMDiff
+* neaGUI
+* Rolexa
+* RWebServices
+* SJava
+* SomatiCA
+* spade
