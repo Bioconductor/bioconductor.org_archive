@@ -951,6 +951,7 @@ def get_search_terms()
 end
 
 def get_hits()
+    return "" if true # bypass badness
     return "" unless File.exists? "analytics_py/client_secrets.json"
     FileUtils.mkdir_p "output/dashboard"
     Dir.chdir("analytics_py") do
@@ -1311,6 +1312,7 @@ end
 
 
 def get_stats()
+    return [] if true # while things are broken
     return [] unless File.exists?(File.join("analytics_py", "client_secrets.json"))
     cache_support_usage_info()
     cache_google_analytics_info()
