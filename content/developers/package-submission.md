@@ -144,14 +144,13 @@ send the package will be provided.
 <h2 id="review">Review Process</h2>
 
 After you submit a GitHub repository, a human will intervene to allow the
-package to build. Then a comment will be posted to the issue you created, with
+package to build. A reviewer will be automatically assigned.
+Then a comment will be posted to the issue you created, with
 the result of `R CMD build`, `R CMD check` and `R CMD BiocCheck` on all three
 platforms. Please address all the Warnings from `R CMD check` and all 'Required'
-and 'Recommended' issues from `R CMD BiocCheck`. Your issue will be assigned a
-reviewer, who will addresses your concerns and help you through the review
-process. Reviewers are assigned daily, if after submission a reviewer is not
-assigned within 3 working days please contact <packages@bioconductor.org>. The
-entire review process typically takes between 2 and 5 weeks.
+and 'Recommended' issues from `R CMD BiocCheck`. Your assigned
+reviewer will address your concerns and help you through the review
+process. The entire review process typically takes between 2 and 5 weeks.
 
 A typical review works as follows.
 
