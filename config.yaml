@@ -30,12 +30,12 @@ devel_repos:
 ## CHANGE this when the build machines change:
 ## also, don't include machines that are not building yet (comment them out)
 active_devel_builders:
-  linux: "zin1"
-  windows: "moscato1"
+  linux: "malbec2"
+  windows: "tokay2"
   mac_mavericks: "oaxaca"
 active_release_builders:
-  linux: "zin2"
-  windows: "moscato2"
+  linux: "malbec1"
+  windows: "tokay1"
   mac_mavericks: "morelia"
 
 ## CHANGE this when the workflow builder builds
