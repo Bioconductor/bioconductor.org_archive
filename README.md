@@ -1,6 +1,6 @@
 # Site Maintainer README for bioconductor.org
 
-The canonical location for this code is https://hedgehog.fhcrc.org/bioconductor/trunk/bioconductor.org
+This git repo has been retired and is no longer active. The canonical location for the web site code is https://hedgehog.fhcrc.org/bioconductor/trunk/bioconductor.org
 
 You can setup git-svn on it by cloning this repository and running
 
